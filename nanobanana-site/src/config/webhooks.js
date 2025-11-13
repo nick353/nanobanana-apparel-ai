@@ -1,5 +1,5 @@
 export const WEBHOOKS = {
-  BASE_URL: 'https://your-n8n-instance.com',
+  BASE_URL: 'https://nichika2000823.zeabur.app',
   ENDPOINTS: {
     designIdea: '/webhook/design-idea-generator',
     designVariation: '/webhook/design-variation',
