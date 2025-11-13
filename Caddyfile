@@ -1,0 +1,9 @@
+:8080 {
+    # /usr/share/caddy/dist フォルダを公開ルートに設定
+    root * /usr/share/caddy/dist
+
+    # 存在しないパスへのリクエストはindex.htmlにフォールバックさせる (React Routerなどに必要)
+    try_files {path} /index.html
+
+    file_server
+}
