@@ -73,14 +73,14 @@ body {
 .btn-primary {
   @apply bg-muted-teal text-white font-medium rounded-8 px-20 py-12 transition-all duration-150 ease-out;
   @apply hover:bg-muted-teal-hover hover:-translate-y-0.5;
-  @apply active:bg-muted-teal-active active:scale-98;
+  @apply active:bg-muted-teal-active active:scale-[0.98];
   @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-muted-teal;
 }
 
 .btn-secondary {
   @apply bg-transparent border border-light-gray text-charcoal font-medium rounded-8 px-20 py-12 transition-all duration-150 ease-out;
   @apply hover:bg-very-light-gray hover:border-medium-gray;
-  @apply active:bg-light-gray/30 active:scale-98;
+  @apply active:bg-light-gray/30 active:scale-[0.98];
   @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-charcoal;
 }
 
