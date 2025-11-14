@@ -63,13 +63,21 @@ const AIModelWearing = ({ onResult, baseUrl, setGlobalLoading }) => {
   };
 
   return (
-    <section aria-label="AIモデル着用画像生成フォーム" className="space-y-6">
+    <section aria-label="AIモデル着用画像生成フォーム" className="space-y-24">
       <div>
-        <h2 className="text-2xl font-semibold text-brand-text">AIモデル着用画像生成</h2>
-        <p className="text-sm text-gray-600">商品画像とモデルパラメータを指定し、スタイリングされた着用イメージを生成します。</p>
+        <div className="flex items-center gap-16 mb-16">
+          <div className="flex items-center justify-center w-56 h-56 rounded-16 bg-gradient-to-br from-muted-teal to-dusty-purple text-white text-2xl shadow-level-3">
+            🧍
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-charcoal">AIモデル着用画像生成</h2>
+            <p className="text-xs text-medium-gray mt-4">AI-Powered Model Photography</p>
+          </div>
+        </div>
+        <p className="text-base leading-[26px] text-medium-gray">商品画像とモデルパラメータを指定し、スタイリングされた着用イメージを生成します。</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-20">
         <ImageUploader
           id="ai-model-product"
           label="商品画像"
@@ -79,16 +87,16 @@ const AIModelWearing = ({ onResult, baseUrl, setGlobalLoading }) => {
           helperText="10MB以下のJPG / PNG / WEBP"
         />
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-16 md:grid-cols-2">
           <div>
-            <label htmlFor="modelType" className="text-sm font-medium text-gray-700">
+            <label htmlFor="modelType" className="text-sm leading-[20px] font-semibold text-charcoal block mb-10">
               モデルタイプ
             </label>
             <select
               id="modelType"
               value={modelType}
               onChange={(event) => setModelType(event.target.value)}
-              className="mt-2 w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-brand focus:outline-none"
+              className="w-full rounded-12 border-2 border-light-gray bg-soft-white px-16 py-14 text-sm text-charcoal focus:border-muted-teal focus:outline-none focus:ring-4 focus:ring-muted-teal/10 transition-all duration-200 shadow-sm hover:border-medium-gray"
             >
               {modelTypes.map((type) => (
                 <option key={type} value={type}>
@@ -99,14 +107,14 @@ const AIModelWearing = ({ onResult, baseUrl, setGlobalLoading }) => {
           </div>
 
           <div>
-            <label htmlFor="pose" className="text-sm font-medium text-gray-700">
+            <label htmlFor="pose" className="text-sm leading-[20px] font-semibold text-charcoal block mb-10">
               ポーズ
             </label>
             <select
               id="pose"
               value={pose}
               onChange={(event) => setPose(event.target.value)}
-              className="mt-2 w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-brand focus:outline-none"
+              className="w-full rounded-12 border-2 border-light-gray bg-soft-white px-16 py-14 text-sm text-charcoal focus:border-muted-teal focus:outline-none focus:ring-4 focus:ring-muted-teal/10 transition-all duration-200 shadow-sm hover:border-medium-gray"
             >
               {poses.map((p) => (
                 <option key={p} value={p}>
@@ -118,14 +126,14 @@ const AIModelWearing = ({ onResult, baseUrl, setGlobalLoading }) => {
         </div>
 
         <div>
-          <label htmlFor="background" className="text-sm font-medium text-gray-700">
+          <label htmlFor="background" className="text-sm leading-[20px] font-semibold text-charcoal block mb-10">
             背景タイプ
           </label>
           <select
             id="background"
             value={background}
             onChange={(event) => setBackground(event.target.value)}
-            className="mt-2 w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-brand focus:outline-none"
+            className="w-full rounded-12 border-2 border-light-gray bg-soft-white px-16 py-14 text-sm text-charcoal focus:border-muted-teal focus:outline-none focus:ring-4 focus:ring-muted-teal/10 transition-all duration-200 shadow-sm hover:border-medium-gray"
           >
             {backgrounds.map((bg) => (
               <option key={bg} value={bg}>
@@ -135,12 +143,12 @@ const AIModelWearing = ({ onResult, baseUrl, setGlobalLoading }) => {
           </select>
         </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="rounded-12 border-2 border-warm-coral/30 bg-warm-coral/5 p-16 text-sm text-warm-coral animate-shake">{error}</p>}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-2xl bg-brand px-5 py-3 font-semibold text-white shadow-soft transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+          className="w-full rounded-12 bg-muted-teal text-white px-24 py-14 text-sm font-semibold shadow-level-2 hover:bg-muted-teal-hover hover:-translate-y-0.5 hover:shadow-level-3 active:bg-muted-teal-active active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-light-gray disabled:text-medium-gray disabled:shadow-none transition-all duration-200"
         >
           {loading ? '生成中...' : '着用画像を生成'}
         </button>

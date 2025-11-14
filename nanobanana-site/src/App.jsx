@@ -130,17 +130,17 @@ const App = () => {
         </div>
       )}
 
-      <div className="mx-auto flex max-w-7xl flex-col gap-32 px-20 py-40 md:px-32 lg:px-48">
+      <div className="mx-auto flex max-w-7xl flex-col gap-40 px-24 py-48 md:px-40 lg:px-64">
         <Header onOpenSettings={() => setIsSettingsOpen(true)} baseUrl={baseUrl} />
 
-        <div className="grid gap-32 lg:grid-cols-[minmax(300px,1fr)_2fr]">
+        <div className="grid gap-32 lg:grid-cols-[minmax(340px,1fr)_2fr] lg:gap-40">
           <FunctionSelector
             functions={FUNCTION_DEFINITIONS}
             selectedFunction={selectedFunction}
             onSelect={setSelectedFunction}
           />
 
-          <div className="glass-panel lg:col-span-1 p-32">
+          <div className="glass-panel lg:col-span-1 p-32 shadow-card">
             {CurrentComponent ? (
               <CurrentComponent
                 onResult={handleResult}
@@ -148,7 +148,7 @@ const App = () => {
                 setGlobalLoading={setGlobalLoading}
               />
             ) : (
-              <div className="flex items-center gap-12 text-medium-gray">
+              <div className="flex items-start gap-12 text-medium-gray">
                 <span className="text-2xl" role="img" aria-hidden="true">⚠️</span>
                 <p className="text-sm leading-[22px]">選択したワークフローが見つかりません。</p>
               </div>

@@ -6,16 +6,33 @@ const ResultDisplay = ({ result, error, duration, isLoading, source }) => {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div className="flex items-center gap-12">
-          <div className="pulse-animate">
-            <svg className="w-24 h-24 text-muted-teal" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
+        <div className="space-y-16 fade-in">
+          <div className="flex items-center gap-12">
+            <div className="pulse-animate">
+              <svg className="w-24 h-24 text-muted-teal" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+            <p className="text-sm leading-[22px] text-medium-gray">
+              AI処理中です。しばらくお待ちください...
+            </p>
           </div>
-          <p className="text-sm leading-[22px] text-medium-gray">
-            AI処理中です。しばらくお待ちください...
-          </p>
+
+          {/* Skeleton loading preview */}
+          <div className="space-y-12">
+            <div className="flex gap-12">
+              <div className="skeleton h-32 w-80 rounded-8"></div>
+              <div className="skeleton h-32 w-120 rounded-8"></div>
+              <div className="skeleton h-32 w-100 rounded-8"></div>
+            </div>
+            <div className="skeleton h-200 w-full rounded-12"></div>
+            <div className="space-y-8">
+              <div className="skeleton h-16 w-full rounded-8"></div>
+              <div className="skeleton h-16 w-4/5 rounded-8"></div>
+              <div className="skeleton h-16 w-3/4 rounded-8"></div>
+            </div>
+          </div>
         </div>
       );
     }
@@ -97,11 +114,11 @@ const ResultDisplay = ({ result, error, duration, isLoading, source }) => {
   };
 
   return (
-    <section className="glass-panel space-y-24 p-24" aria-live="polite">
+    <section className="glass-panel space-y-24 p-32" aria-live="polite">
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.4em] text-medium-gray">Results</p>
-        <h2 className="text-[20px] leading-[28px] font-semibold text-charcoal mt-8">処理結果</h2>
-        <p className="text-sm leading-[22px] text-medium-gray mt-8">
+        <p className="text-[11px] font-medium uppercase tracking-[0.4em] text-medium-gray mb-8">Results</p>
+        <h2 className="text-2xl font-bold text-charcoal">処理結果</h2>
+        <p className="text-sm leading-[22px] text-medium-gray mt-12">
           成功・エラーメッセージ、処理時間、API応答を表示します。
         </p>
       </div>

@@ -44,14 +44,16 @@ const ImageUploader = ({
   };
 
   return (
-    <div className="space-y-3">
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700">
-        {label} {required && <span className="text-red-500">*</span>}
+    <div className="space-y-12">
+      <label htmlFor={id} className="block text-sm leading-[20px] font-semibold text-charcoal">
+        {label} {required && <span className="text-warm-coral">*</span>}
       </label>
       <div
-        className={`rounded-2xl border-2 border-dashed p-6 text-center transition focus-within:ring-2 focus-within:ring-brand/40 ${
-          isDragging ? 'border-brand bg-blue-50/50' : 'border-gray-300'
-        }`}
+        className={`rounded-12 border-2 border-dashed p-24 text-center transition-all duration-200 cursor-pointer ${
+          isDragging
+            ? 'border-muted-teal bg-muted-teal/5 shadow-level-2 scale-[1.02]'
+            : 'border-light-gray hover:border-muted-teal/50 hover:bg-very-light-gray/30'
+        } focus-within:ring-4 focus-within:ring-muted-teal/10 focus-within:border-muted-teal`}
         onDragOver={handleDragOver}
         onDragEnter={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -67,11 +69,16 @@ const ImageUploader = ({
         }}
         aria-label={`${label}をアップロード`}
       >
-        <p className="text-sm text-gray-600">
-          画像をドラッグ＆ドロップ、または
-          <span className="text-brand font-semibold"> ファイルを選択</span>
-        </p>
-        {description && <p className="text-xs text-gray-500 mt-2">{description}</p>}
+        <div className="flex flex-col items-center gap-8">
+          <div className="w-48 h-48 rounded-12 bg-muted-teal/10 flex items-center justify-center text-muted-teal text-2xl">
+            📸
+          </div>
+          <p className="text-sm text-charcoal">
+            画像をドラッグ＆ドロップ、または
+            <span className="text-muted-teal font-semibold"> ファイルを選択</span>
+          </p>
+          {description && <p className="text-xs text-medium-gray mt-4">{description}</p>}
+        </div>
         <input
           id={id}
           ref={inputRef}
@@ -81,13 +88,13 @@ const ImageUploader = ({
           onChange={(event) => handleFiles(event.target.files)}
         />
       </div>
-      {helperText && <p className="text-xs text-gray-500">{helperText}</p>}
+      {helperText && <p className="text-xs text-medium-gray">{helperText}</p>}
       {preview && (
-        <div className="rounded-xl border border-gray-200 bg-white p-3">
+        <div className="rounded-12 border border-light-gray bg-soft-white p-12 shadow-card">
           <img
             src={`data:image/*;base64,${preview}`}
             alt="アップロードプレビュー"
-            className="h-auto max-h-52 w-full rounded-lg object-cover"
+            className="h-auto max-h-[300px] w-full rounded-8 object-cover"
           />
         </div>
       )}

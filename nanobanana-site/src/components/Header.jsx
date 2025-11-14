@@ -32,18 +32,18 @@ const Header = ({ onOpenSettings, baseUrl }) => {
     <header className="glass-panel p-24 flex flex-col gap-16 md:flex-row md:items-center md:justify-between fade-in" aria-label="NanoBanana サイトヘッダー">
       <div>
         <div className="flex items-center gap-12">
-          <div className="flex items-center justify-center w-48 h-48 rounded-12 bg-gradient-to-br from-muted-teal to-dusty-purple shadow-level-2">
-            <span className="text-2xl" role="img" aria-hidden="true">🍌</span>
+          <div className="flex items-center justify-center w-56 h-56 rounded-16 bg-gradient-to-br from-muted-teal to-dusty-purple shadow-level-3">
+            <span className="text-3xl" role="img" aria-hidden="true">🍌</span>
           </div>
           <div>
             <p className="text-sm uppercase tracking-[0.3em] text-dusty-purple font-bold">NANOBANANA</p>
             <p className="text-xs text-medium-gray mt-2">AI Design Studio</p>
           </div>
         </div>
-        <h1 className="text-[24px] leading-[32px] font-semibold text-charcoal mt-16">
+        <h1 className="text-3xl font-bold text-charcoal mt-24">
           AI-Powered Apparel Design
         </h1>
-        <p className="text-sm leading-[22px] text-medium-gray mt-8">
+        <p className="text-base leading-[26px] text-medium-gray mt-12">
           9つのAIワークフローでアパレル制作をスピードアップ
         </p>
       </div>

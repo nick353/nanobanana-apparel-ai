@@ -15,11 +15,11 @@ const FunctionSelector = ({ functions, selectedFunction, onSelect }) => {
   }, [functions, searchQuery]);
 
   return (
-    <aside className="glass-panel p-24 space-y-24 fade-in" aria-label="機能選択メニュー">
+    <aside className="glass-panel p-24 space-y-24 fade-in bg-gradient-to-br from-white/95 to-very-light-gray/30" aria-label="機能選択メニュー">
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.4em] text-medium-gray">Workflows</p>
-        <h2 className="text-[20px] leading-[28px] font-semibold text-charcoal mt-8">AIワークフローを選択</h2>
-        <p className="text-sm leading-[22px] text-medium-gray mt-8">
+        <p className="text-[11px] font-medium uppercase tracking-[0.4em] text-medium-gray mb-8">Workflows</p>
+        <h2 className="text-2xl font-bold text-charcoal">AIワークフローを選択</h2>
+        <p className="text-sm leading-[22px] text-medium-gray mt-12">
           必要なワークフローを選択してフォームを表示します。
         </p>
       </div>

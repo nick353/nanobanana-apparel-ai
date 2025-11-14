@@ -49,23 +49,23 @@ const DesignIdeaGenerator = ({ onResult, baseUrl, setGlobalLoading }) => {
   return (
     <section aria-label="デザインアイデア生成フォーム" className="space-y-24">
       <div>
-        <div className="flex items-center gap-12 mb-12">
-          <div className="flex items-center justify-center w-40 h-40 rounded-12 bg-gradient-to-br from-muted-teal to-dusty-purple text-white text-xl shadow-level-2">
+        <div className="flex items-center gap-16 mb-16">
+          <div className="flex items-center justify-center w-56 h-56 rounded-16 bg-gradient-to-br from-muted-teal to-dusty-purple text-white text-2xl shadow-level-3">
             ✨
           </div>
           <div>
-            <h2 className="text-[20px] leading-[28px] font-semibold text-charcoal">デザインアイデア創出</h2>
-            <p className="text-xs text-medium-gray mt-2">AI-Powered Design Ideation</p>
+            <h2 className="text-2xl font-bold text-charcoal">デザインアイデア創出</h2>
+            <p className="text-xs text-medium-gray mt-4">AI-Powered Design Ideation</p>
           </div>
         </div>
-        <p className="text-sm leading-[22px] text-medium-gray">
+        <p className="text-base leading-[26px] text-medium-gray">
           思い描くスタイルや参考素材を自然言語で入力すると、AIがデザインの方向性を提案します。
         </p>
       </div>
 
       <form ref={formRef} onSubmit={handleSubmit} className="space-y-20">
         <div>
-          <label htmlFor="designPrompt" className="text-[12px] leading-[16px] font-medium text-charcoal block mb-8">
+          <label htmlFor="designPrompt" className="text-sm leading-[20px] font-semibold text-charcoal block mb-10">
             デザインプロンプト <span className="text-warm-coral">*</span>
           </label>
           <AutoResizeTextarea
@@ -75,9 +75,9 @@ const DesignIdeaGenerator = ({ onResult, baseUrl, setGlobalLoading }) => {
             value={prompt}
             onChange={(event) => setPrompt(event.target.value)}
             placeholder="例: エコレザーを使ったミニマルなジャケット、都会的でジェンダーレスな雰囲気"
-            className="w-full rounded-12 border border-light-gray bg-soft-white px-16 py-12 text-sm text-charcoal placeholder:text-medium-gray leading-relaxed focus:border-muted-teal focus:outline-none focus:ring-2 focus:ring-muted-teal/20 transition-all duration-150"
+            className="w-full rounded-12 border-2 border-light-gray bg-soft-white px-16 py-14 text-sm text-charcoal placeholder:text-medium-gray leading-relaxed focus:border-muted-teal focus:outline-none focus:ring-4 focus:ring-muted-teal/10 transition-all duration-200 shadow-sm hover:border-medium-gray"
           />
-          <p className="text-xs text-medium-gray mt-8">
+          <p className="text-xs text-medium-gray mt-10">
             {prompt.length} / 1000文字
           </p>
         </div>
