@@ -123,24 +123,24 @@ const App = () => {
   );
 
   return (
-    <div className="min-h-screen bg-warm-cream pb-64">
+    <div className="min-h-screen bg-warm-cream pb-96">
       {globalLoading && (
         <div className="progress-indicator fixed inset-x-0 top-0 z-50">
           <span className="sr-only">処理中</span>
         </div>
       )}
 
-      <div className="mx-auto flex max-w-7xl flex-col gap-24 px-16 py-32 lg:px-32">
+      <div className="mx-auto flex max-w-7xl flex-col gap-32 px-20 py-40 md:px-32 lg:px-48">
         <Header onOpenSettings={() => setIsSettingsOpen(true)} baseUrl={baseUrl} />
 
-        <div className="grid gap-24 lg:grid-cols-3">
+        <div className="grid gap-32 lg:grid-cols-[minmax(300px,1fr)_2fr]">
           <FunctionSelector
             functions={FUNCTION_DEFINITIONS}
             selectedFunction={selectedFunction}
             onSelect={setSelectedFunction}
           />
 
-          <div className="glass-panel lg:col-span-2 p-24">
+          <div className="glass-panel lg:col-span-1 p-32">
             {CurrentComponent ? (
               <CurrentComponent
                 onResult={handleResult}
