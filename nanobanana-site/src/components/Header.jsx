@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
-const Header = ({ onOpenSettings, baseUrl, locale = 'ja', onLocaleChange, supportedLocales = [] }) => {
+const Header = ({ onOpenSettings, baseUrl, locale = 'ja', onLocaleChange, supportedLocales = [], compact = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const isConnected = Boolean(baseUrl);
@@ -37,9 +37,100 @@ const Header = ({ onOpenSettings, baseUrl, locale = 'ja', onLocaleChange, suppor
     };
   }, [isMenuOpen]);
 
+  if (compact) {
+    return (
+      <header
+        className="sticky top-0 z-30 bg-warm-cream/90 backdrop-blur-md border-b border-very-light-gray"
+        aria-label="NanoBanana サイトヘッダー"
+      >
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-16 px-24 py-14 md:px-40">
+          <div className="flex items-center gap-12">
+            <div className="flex h-44 w-44 items-center justify-center rounded-12 bg-gradient-to-br from-muted-teal to-dusty-purple text-2xl text-white shadow-level-2">
+              <span role="img" aria-hidden="true">🍌</span>
+            </div>
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.35em] text-dusty-purple font-semibold">NANOBANANA</p>
+              <p className="text-xs text-medium-gray mt-1">AI Design Studio</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-12" ref={menuRef}>
+            <div className="hidden md:block text-right text-xs text-medium-gray">
+              <p className="uppercase tracking-[0.2em] font-medium">Status</p>
+              <div className="mt-3 inline-flex items-center gap-6 rounded-10 px-12 py-6 text-xs font-semibold border border-very-light-gray">
+                <span className={`h-8 w-8 rounded-full ${isConnected ? 'bg-muted-teal pulse-animate' : 'bg-light-gray'}`}></span>
+                {isConnected ? 'Connected' : 'Offline'}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="inline-flex items-center gap-8 rounded-12 border border-very-light-gray bg-soft-white px-14 py-10 text-sm font-semibold text-charcoal hover:border-muted-teal hover:text-muted-teal transition-colors duration-150"
+              aria-expanded={isMenuOpen}
+            >
+              ⚙️ 設定
+              <svg className={`w-16 h-16 transition-transform duration-200 ${isMenuOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {supportedLocales.length > 0 && (
+              <div className="inline-flex rounded-12 border border-very-light-gray bg-soft-white p-3 text-xs font-semibold text-medium-gray">
+                {supportedLocales.map((option) => {
+                  const isActive = option.id === locale;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => onLocaleChange?.(option.id)}
+                      className={`px-10 py-5 rounded-10 transition-all ${
+                        isActive ? 'bg-muted-teal text-white shadow-level-1' : 'hover:text-charcoal'
+                      }`}
+                      aria-pressed={isActive}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {isMenuOpen && (
+              <div className="absolute right-10 top-full mt-8 w-72 rounded-16 border border-very-light-gray bg-soft-white shadow-level-4 overflow-hidden fade-in z-50">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onOpenSettings();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-left px-16 py-12 flex items-center gap-12 hover:bg-very-light-gray transition-colors duration-150"
+                >
+                  <span className="flex items-center justify-center w-32 h-32 rounded-8 bg-muted-teal/10 text-muted-teal" role="img" aria-hidden="true">
+                    ⚙️
+                  </span>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-charcoal">設定を開く</p>
+                    <p className="text-xs text-medium-gray mt-2">接続先URLを編集</p>
+                  </div>
+                </button>
+                <div className="border-t border-very-light-gray px-16 py-12">
+                  <p className="text-xs text-medium-gray mb-4">現在の設定</p>
+                  <p className="text-xs font-mono text-charcoal truncate" title={baseUrl || '未設定'}>
+                    {baseUrl || '未設定'}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header
-      className="glass-panel fade-in grid gap-24 p-24 md:p-32 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-32 lg:p-40 sticky top-0 z-30"
+      className="glass-panel fade-in grid gap-24 p-24 md:p-32 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-32 lg:p-40 sticky top-0 z-20"
       aria-label="NanoBanana サイトヘッダー"
     >
       <div className="space-y-16">

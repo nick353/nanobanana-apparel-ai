@@ -350,7 +350,7 @@ const App = () => {
     [selectedFunction],
   );
   const CurrentComponent = currentDefinition?.component;
-  const workspaceHeightStyle = { height: 'calc(100vh - 220px)' };
+  const workspaceHeightStyle = { minHeight: 'calc(100vh - 140px)' };
 
   return (
     <div className="min-h-screen bg-warm-cream pb-48 md:pb-96">
@@ -367,6 +367,7 @@ const App = () => {
           locale={locale}
           onLocaleChange={setLocale}
           supportedLocales={SUPPORTED_LOCALES}
+          compact={Boolean(selectedProject)}
         />
 
         {!selectedProject ? (
