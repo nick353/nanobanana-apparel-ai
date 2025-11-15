@@ -1,21 +1,45 @@
 import React, { useState } from 'react';
 import ImageUploader from './ImageUploader';
+import LoadingButton from './LoadingButton';
+import ModelPicker from './ModelPicker';
 import { imageToBase64, validateImageFile } from '../utils/imageUtils';
 import { callWebhook } from '../utils/apiClient';
 import { WEBHOOKS } from '../config/webhooks';
 
 const models = [
-  { id: 'model-casual-female', name: 'カジュアル女性（20代）', description: 'アジア系・カジュアルスタイル' },
-  { id: 'model-professional-male', name: 'ビジネス男性（30代）', description: '欧米系・フォーマル' },
-  { id: 'model-elegant-female', name: 'エレガント女性（30代）', description: '欧米系・洗練' },
-  { id: 'model-sporty-male', name: 'スポーツ男性（20代）', description: 'アジア系・アクティブ' },
-  { id: 'model-trendy-female', name: 'トレンディ女性（20代）', description: 'ファッショナブル' },
-  { id: 'model-mature-male', name: 'マチュア男性（40代）', description: '欧米系・落ち着き' },
+  { value: 'model-casual-female', label: 'カジュアル女性（20代）', description: 'アジア系・カジュアルスタイル' },
+  { value: 'model-professional-male', label: 'ビジネス男性（30代）', description: '欧米系・フォーマル' },
+  { value: 'model-elegant-female', label: 'エレガント女性（30代）', description: '欧米系・洗練' },
+  { value: 'model-sporty-male', label: 'スポーツ男性（20代）', description: 'アジア系・アクティブ' },
+  { value: 'model-trendy-female', label: 'トレンディ女性（20代）', description: 'ファッショナブル' },
+  { value: 'model-mature-male', label: 'マチュア男性（40代）', description: '欧米系・落ち着き' },
 ];
 
-const AIModelSelection = ({ onResult, baseUrl, setGlobalLoading }) => {
+const copy = {
+  ja: {
+    title: 'AIモデル撮影（詳細設定）',
+    subtitle: 'Advanced AI Model Studio',
+    description: 'ターゲットモデルと商品画像を組み合わせ、詳細な撮影指示に沿った着用ビジュアルを生成します。',
+    helper: 'ターゲットとなるペルソナやマーケットに近いモデルを選んでください。',
+    button: 'モデルで着用画像を生成',
+    errorUpload: '商品画像をアップロードしてください',
+    source: 'AIモデル撮影（詳細設定）',
+  },
+  en: {
+    title: 'AI Model Studio (Advanced)',
+    subtitle: 'Advanced AI Model Studio',
+    description: 'Pair your product with a target model and generate shots with detailed direction.',
+    helper: 'Pick a persona that matches your market or campaign target.',
+    button: 'Generate with selected model',
+    errorUpload: 'Please upload a product image',
+    source: 'AI Model Studio',
+  },
+};
+
+const AIModelSelection = ({ onResult, baseUrl, setGlobalLoading, locale = 'ja' }) => {
+  const text = copy[locale] || copy.ja;
   const [productImage, setProductImage] = useState(null);
-  const [selectedModel, setSelectedModel] = useState(models[0].id);
+  const [selectedModel, setSelectedModel] = useState(models[0].value);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -33,7 +57,7 @@ const AIModelSelection = ({ onResult, baseUrl, setGlobalLoading }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!productImage) {
-      setError('商品画像をアップロードしてください');
+      setError(text.errorUpload);
       return;
     }
 
@@ -50,11 +74,11 @@ const AIModelSelection = ({ onResult, baseUrl, setGlobalLoading }) => {
         baseUrl,
       );
       const duration = (performance.now() - start) / 1000;
-      onResult({ result: response, error: null, duration, source: 'AIモデル選択' });
+      onResult({ result: response, error: null, duration, source: text.source });
     } catch (err) {
       const message = err.message || 'エラーが発生しました';
       setError(message);
-      onResult({ result: null, error: message, duration: null, source: 'AIモデル選択' });
+      onResult({ result: null, error: message, duration: null, source: text.source });
     } finally {
       setLoading(false);
       setGlobalLoading?.(false);
@@ -62,13 +86,23 @@ const AIModelSelection = ({ onResult, baseUrl, setGlobalLoading }) => {
   };
 
   return (
-    <section aria-label="AIモデル選択フォーム" className="space-y-6">
+    <section aria-label="AIモデル選択フォーム" className="space-y-24">
       <div>
-        <h2 className="text-2xl font-semibold text-brand-text">AIモデル選択</h2>
-        <p className="text-sm text-gray-600">ターゲットモデルを選び、商品画像をアップロードして着用パターンを生成します。</p>
+        <div className="flex items-center gap-16 mb-16">
+          <div className="flex items-center justify-center w-56 h-56 rounded-16 bg-gradient-to-br from-muted-teal to-dusty-purple text-white text-2xl shadow-level-3">
+            🤖
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-charcoal">{text.title}</h2>
+            <p className="text-xs text-medium-gray mt-4">{text.subtitle}</p>
+          </div>
+        </div>
+        <p className="text-base leading-[26px] text-medium-gray">
+          {text.description}
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-20">
         <ImageUploader
           id="model-selection-product"
           label="商品画像"
@@ -77,35 +111,25 @@ const AIModelSelection = ({ onResult, baseUrl, setGlobalLoading }) => {
           required
         />
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {models.map((model) => {
-            const isActive = model.id === selectedModel;
-            return (
-              <button
-                type="button"
-                key={model.id}
-                onClick={() => setSelectedModel(model.id)}
-                className={`rounded-2xl border p-4 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand ${
-                  isActive ? 'border-brand bg-blue-50' : 'border-gray-200 hover:border-brand/60'
-                }`}
-                aria-pressed={isActive}
-              >
-                <p className="font-semibold text-brand-text">{model.name}</p>
-                <p className="text-xs text-gray-600">{model.description}</p>
-              </button>
-            );
-          })}
-        </div>
+        <ModelPicker
+          label="モデルを選択"
+          helperText={text.helper}
+          options={models}
+          value={selectedModel}
+          onChange={setSelectedModel}
+          enableSearch
+        />
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="rounded-12 border-2 border-warm-coral/30 bg-warm-coral/5 p-16 text-sm text-warm-coral">{error}</p>}
 
-        <button
+        <LoadingButton
           type="submit"
-          disabled={loading}
-          className="w-full rounded-2xl bg-brand px-5 py-3 font-semibold text-white shadow-soft transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+          loading={loading}
+          loadingText="生成中..."
+          className="w-full rounded-12 bg-muted-teal text-white px-24 py-14 text-sm font-semibold shadow-level-2 hover:bg-muted-teal-hover hover:-translate-y-0.5 hover:shadow-level-3 active:bg-muted-teal-active active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-light-gray disabled:text-medium-gray disabled:shadow-none transition-all duration-200"
         >
-          {loading ? '生成中...' : 'モデルで着用画像を生成'}
-        </button>
+          {text.button}
+        </LoadingButton>
       </form>
     </section>
   );

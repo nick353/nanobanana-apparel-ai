@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { getLocalizedContent } from '../utils/i18n';
 
 const CATEGORY_META = {
   ideation: {
@@ -35,7 +36,24 @@ const CATEGORY_META = {
 
 const categoryOrder = Object.keys(CATEGORY_META);
 
-const FunctionSelector = ({ functions, selectedFunction, onSelect }) => {
+const copyByLocale = {
+  ja: {
+    headingLabel: 'Workflows',
+    headingTitle: 'AIワークフローを選択',
+    headingDescription: '必要なワークフローを選択してフォームを表示します。',
+    searchPlaceholder: 'ワークフローを検索...',
+    empty: (query) => `「${query}」に一致するワークフローが見つかりません`,
+  },
+  en: {
+    headingLabel: 'Workflows',
+    headingTitle: 'Choose an AI Workflow',
+    headingDescription: 'Pick the workflow you need to reveal its form.',
+    searchPlaceholder: 'Search workflows...',
+    empty: (query) => `No workflows found for “${query}”`,
+  },
+};
+
+const FunctionSelector = ({ functions, selectedFunction, onSelect, locale }) => {
   const [hoveredId, setHoveredId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const categoryIds = useMemo(
@@ -54,11 +72,14 @@ const FunctionSelector = ({ functions, selectedFunction, onSelect }) => {
     if (!searchQuery.trim()) return functions;
 
     const query = searchQuery.toLowerCase();
-    return functions.filter(fn =>
-      fn.name.toLowerCase().includes(query) ||
-      fn.description.toLowerCase().includes(query)
-    );
-  }, [functions, searchQuery]);
+    return functions.filter((fn) => {
+      const localized = getLocalizedContent(fn, locale);
+      return (
+        localized.name.toLowerCase().includes(query) ||
+        localized.description.toLowerCase().includes(query)
+      );
+    });
+  }, [functions, locale, searchQuery]);
 
   const groupedFunctions = useMemo(() => {
     const groups = filteredFunctions.reduce((acc, fn) => {
@@ -83,10 +104,14 @@ const FunctionSelector = ({ functions, selectedFunction, onSelect }) => {
       aria-label="機能選択メニュー"
     >
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.4em] text-muted-teal mb-8">Workflows</p>
-        <h2 className="text-2xl font-bold text-charcoal">AIワークフローを選択</h2>
+        <p className="text-[11px] font-medium uppercase tracking-[0.4em] text-muted-teal mb-8">
+          {copyByLocale[locale]?.headingLabel}
+        </p>
+        <h2 className="text-2xl font-bold text-charcoal">
+          {copyByLocale[locale]?.headingTitle}
+        </h2>
         <p className="text-sm leading-[22px] text-medium-gray mt-12">
-          必要なワークフローを選択してフォームを表示します。
+          {copyByLocale[locale]?.headingDescription}
         </p>
       </div>
 
@@ -100,7 +125,7 @@ const FunctionSelector = ({ functions, selectedFunction, onSelect }) => {
           type="search"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="ワークフローを検索..."
+          placeholder={copyByLocale[locale]?.searchPlaceholder}
           className="w-full pl-40 pr-12 py-10 rounded-12 border border-light-gray bg-soft-white text-sm text-charcoal placeholder:text-medium-gray focus:border-muted-teal focus:outline-none focus:ring-2 focus:ring-muted-teal/20 transition-all duration-150"
           aria-label="ワークフロー検索"
         />
@@ -121,7 +146,7 @@ const FunctionSelector = ({ functions, selectedFunction, onSelect }) => {
       {filteredFunctions.length === 0 && (
         <div className="text-center py-24">
           <p className="text-sm text-medium-gray">
-            「{searchQuery}」に一致するワークフローが見つかりません
+            {copyByLocale[locale]?.empty(searchQuery)}
           </p>
         </div>
       )}
@@ -177,6 +202,7 @@ const FunctionSelector = ({ functions, selectedFunction, onSelect }) => {
               {isExpanded && (
                 <div className="mt-16 space-y-12" id={sectionPanelId}>
                   {items.map((fn) => {
+                    const localizedCopy = getLocalizedContent(fn, locale);
                     const isActive = fn.id === selectedFunction;
                     const isHovered = hoveredId === fn.id;
                     return (
@@ -213,15 +239,15 @@ const FunctionSelector = ({ functions, selectedFunction, onSelect }) => {
                               isActive ? 'text-muted-teal' : 'text-charcoal group-hover:text-muted-teal'
                             }`}
                           >
-                            {fn.name}
+                            {localizedCopy.name}
                           </p>
                           <p
                             className={`text-xs leading-[18px] mt-4 transition-all duration-200 ${
                               isActive || isHovered ? 'text-charcoal' : 'text-medium-gray truncate'
                             }`}
-                            title={fn.description}
+                            title={localizedCopy.description}
                           >
-                            {fn.description}
+                            {localizedCopy.description}
                           </p>
                         </div>
                         {isActive && (

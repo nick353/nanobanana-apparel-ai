@@ -1,18 +1,63 @@
 import React, { useState } from 'react';
 import ImageUploader from './ImageUploader';
+import LoadingButton from './LoadingButton';
+import ModelPicker from './ModelPicker';
 import { imageToBase64, validateImageFile } from '../utils/imageUtils';
 import { callWebhook } from '../utils/apiClient';
 import { WEBHOOKS } from '../config/webhooks';
 
-const modelTypes = ['casual', 'professional', 'street', 'sport'];
-const poses = ['standing', 'walking', 'studio', 'dynamic'];
-const backgrounds = ['studio', 'outdoor', 'urban', 'custom'];
+const modelTypes = [
+  { value: 'casual', label: 'カジュアル', description: '自然体・日常的な雰囲気' },
+  { value: 'professional', label: 'プロフェッショナル', description: 'ビジネス / オケージョン' },
+  { value: 'street', label: 'ストリート', description: '都会的でトレンド感' },
+  { value: 'sport', label: 'スポーツ', description: 'アクティブで動きのある表現' },
+];
 
-const AIModelWearing = ({ onResult, baseUrl, setGlobalLoading }) => {
+const poses = [
+  { value: 'standing', label: 'スタンダード', description: '真正面の立ち姿' },
+  { value: 'walking', label: 'ウォーキング', description: '動きのあるポーズ' },
+  { value: 'studio', label: 'スタジオ', description: 'シンプルで静止したポーズ' },
+  { value: 'dynamic', label: 'ダイナミック', description: '大きな動きを伴う表現' },
+];
+
+const backgrounds = [
+  { value: 'studio', label: 'スタジオライト', description: '無機質で商品が映える' },
+  { value: 'outdoor', label: 'アウトドア', description: '自然光を感じる景色' },
+  { value: 'urban', label: 'アーバンロケ', description: '街角や都会的な背景' },
+  { value: 'custom', label: 'カスタム', description: '後で差し替えるための仮背景' },
+];
+
+const copy = {
+  ja: {
+    title: 'AIモデル試着（クイック）',
+    subtitle: 'AI-Powered Model Photography',
+    description: '商品画像とモデルパラメータを指定し、スタイリングされた着用イメージを生成します。',
+    helperModel: 'ざっくりとしたモデルの雰囲気を選択してください。',
+    helperPose: '確認したい動きに近いものを選択するとプレビューが想像しやすくなります。',
+    helperBackground: '後で背景差し替えを行う場合は「カスタム」を選択してください。',
+    button: '着用画像を生成',
+    errorUpload: '商品画像をアップロードしてください',
+    source: 'AIモデル試着（クイック）',
+  },
+  en: {
+    title: 'AI Model Quick Try-on',
+    subtitle: 'AI-Powered Model Photography',
+    description: 'Pick broad model settings and generate quick styled previews.',
+    helperModel: 'Choose a general vibe for the model.',
+    helperPose: 'Pick a pose close to the motion you need to preview.',
+    helperBackground: 'Select “Custom” if you plan to replace the background later.',
+    button: 'Generate try-on',
+    errorUpload: 'Please upload a product image',
+    source: 'AI Model Quick Try-on',
+  },
+};
+
+const AIModelWearing = ({ onResult, baseUrl, setGlobalLoading, locale = 'ja' }) => {
+  const text = copy[locale] || copy.ja;
   const [productImage, setProductImage] = useState(null);
-  const [modelType, setModelType] = useState(modelTypes[0]);
-  const [pose, setPose] = useState(poses[0]);
-  const [background, setBackground] = useState(backgrounds[0]);
+  const [modelType, setModelType] = useState(modelTypes[0].value);
+  const [pose, setPose] = useState(poses[0].value);
+  const [background, setBackground] = useState(backgrounds[0].value);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -30,7 +75,7 @@ const AIModelWearing = ({ onResult, baseUrl, setGlobalLoading }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!productImage) {
-      setError('商品画像をアップロードしてください');
+      setError(text.errorUpload);
       return;
     }
 
@@ -51,11 +96,11 @@ const AIModelWearing = ({ onResult, baseUrl, setGlobalLoading }) => {
         baseUrl,
       );
       const duration = (performance.now() - start) / 1000;
-      onResult({ result: response, error: null, duration, source: 'AIモデル着用画像生成' });
+      onResult({ result: response, error: null, duration, source: text.source });
     } catch (err) {
       const message = err.message || 'エラーが発生しました';
       setError(message);
-      onResult({ result: null, error: message, duration: null, source: 'AIモデル着用画像生成' });
+      onResult({ result: null, error: message, duration: null, source: text.source });
     } finally {
       setLoading(false);
       setGlobalLoading?.(false);
@@ -70,11 +115,11 @@ const AIModelWearing = ({ onResult, baseUrl, setGlobalLoading }) => {
             🧍
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-charcoal">AIモデル着用画像生成</h2>
-            <p className="text-xs text-medium-gray mt-4">AI-Powered Model Photography</p>
+            <h2 className="text-2xl font-bold text-charcoal">{text.title}</h2>
+            <p className="text-xs text-medium-gray mt-4">{text.subtitle}</p>
           </div>
         </div>
-        <p className="text-base leading-[26px] text-medium-gray">商品画像とモデルパラメータを指定し、スタイリングされた着用イメージを生成します。</p>
+        <p className="text-base leading-[26px] text-medium-gray">{text.description}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-20">
@@ -87,71 +132,43 @@ const AIModelWearing = ({ onResult, baseUrl, setGlobalLoading }) => {
           helperText="10MB以下のJPG / PNG / WEBP"
         />
 
-        <div className="grid gap-16 md:grid-cols-2">
-          <div>
-            <label htmlFor="modelType" className="text-sm leading-[20px] font-semibold text-charcoal block mb-10">
-              モデルタイプ
-            </label>
-            <select
-              id="modelType"
-              value={modelType}
-              onChange={(event) => setModelType(event.target.value)}
-              className="w-full rounded-12 border-2 border-light-gray bg-soft-white px-16 py-14 text-sm text-charcoal focus:border-muted-teal focus:outline-none focus:ring-4 focus:ring-muted-teal/10 transition-all duration-200 shadow-sm hover:border-medium-gray"
-            >
-              {modelTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
+        <ModelPicker
+          label="モデルタイプ"
+          helperText={text.helperModel}
+          options={modelTypes}
+          value={modelType}
+          onChange={setModelType}
+          size="sm"
+        />
 
-          <div>
-            <label htmlFor="pose" className="text-sm leading-[20px] font-semibold text-charcoal block mb-10">
-              ポーズ
-            </label>
-            <select
-              id="pose"
-              value={pose}
-              onChange={(event) => setPose(event.target.value)}
-              className="w-full rounded-12 border-2 border-light-gray bg-soft-white px-16 py-14 text-sm text-charcoal focus:border-muted-teal focus:outline-none focus:ring-4 focus:ring-muted-teal/10 transition-all duration-200 shadow-sm hover:border-medium-gray"
-            >
-              {poses.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+        <ModelPicker
+          label="ポーズ"
+          helperText={text.helperPose}
+          options={poses}
+          value={pose}
+          onChange={setPose}
+          size="sm"
+        />
 
-        <div>
-          <label htmlFor="background" className="text-sm leading-[20px] font-semibold text-charcoal block mb-10">
-            背景タイプ
-          </label>
-          <select
-            id="background"
-            value={background}
-            onChange={(event) => setBackground(event.target.value)}
-            className="w-full rounded-12 border-2 border-light-gray bg-soft-white px-16 py-14 text-sm text-charcoal focus:border-muted-teal focus:outline-none focus:ring-4 focus:ring-muted-teal/10 transition-all duration-200 shadow-sm hover:border-medium-gray"
-          >
-            {backgrounds.map((bg) => (
-              <option key={bg} value={bg}>
-                {bg}
-              </option>
-            ))}
-          </select>
-        </div>
+        <ModelPicker
+          label="背景タイプ"
+          helperText={text.helperBackground}
+          options={backgrounds}
+          value={background}
+          onChange={setBackground}
+          size="sm"
+        />
 
         {error && <p className="rounded-12 border-2 border-warm-coral/30 bg-warm-coral/5 p-16 text-sm text-warm-coral animate-shake">{error}</p>}
 
-        <button
+        <LoadingButton
           type="submit"
-          disabled={loading}
+          loading={loading}
+          loadingText="生成中..."
           className="w-full rounded-12 bg-muted-teal text-white px-24 py-14 text-sm font-semibold shadow-level-2 hover:bg-muted-teal-hover hover:-translate-y-0.5 hover:shadow-level-3 active:bg-muted-teal-active active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-light-gray disabled:text-medium-gray disabled:shadow-none transition-all duration-200"
         >
-          {loading ? '生成中...' : '着用画像を生成'}
-        </button>
+          {text.button}
+        </LoadingButton>
       </form>
     </section>
   );

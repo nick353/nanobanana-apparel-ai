@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
-const Header = ({ onOpenSettings, baseUrl }) => {
+const Header = ({ onOpenSettings, baseUrl, locale = 'ja', onLocaleChange, supportedLocales = [] }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const isConnected = Boolean(baseUrl);
@@ -128,6 +128,32 @@ const Header = ({ onOpenSettings, baseUrl }) => {
               </svg>
             </button>
           </div>
+
+          {supportedLocales.length > 0 && (
+            <div className="border-t border-very-light-gray pt-16">
+              <p className="text-[11px] font-medium uppercase tracking-[0.4em] text-medium-gray mb-8">Language</p>
+              <div className="inline-flex rounded-12 border border-very-light-gray bg-soft-white p-4 text-xs font-semibold text-medium-gray">
+                {supportedLocales.map((option) => {
+                  const isActive = option.id === locale;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => onLocaleChange?.(option.id)}
+                      className={`px-12 py-6 rounded-10 transition-all ${
+                        isActive
+                          ? 'bg-muted-teal text-white shadow-level-1'
+                          : 'hover:text-charcoal'
+                      }`}
+                      aria-pressed={isActive}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {isMenuOpen && (
