@@ -400,17 +400,19 @@ const App = () => {
       )}
 
       <div className="mx-auto flex max-w-7xl flex-col gap-32 px-24 py-32 md:gap-40 md:px-40 lg:px-64 lg:py-48">
-        <Header
-          onOpenSettings={() => setIsSettingsOpen(true)}
-          baseUrl={baseUrl}
-          locale={locale}
-          onLocaleChange={setLocale}
-          supportedLocales={SUPPORTED_LOCALES}
-          compact={Boolean(selectedProject)}
-        />
+        {!selectedProject && (
+          <Header
+            onOpenSettings={() => setIsSettingsOpen(true)}
+            baseUrl={baseUrl}
+            locale={locale}
+            onLocaleChange={setLocale}
+            supportedLocales={SUPPORTED_LOCALES}
+            compact={false}
+          />
+        )}
 
         {!selectedProject ? (
-          <ProjectsGallery projects={SAMPLE_PROJECTS} onSelect={handleSelectProject} />
+          <ProjectsGallery projects={SAMPLE_PROJECTS} onSelect={handleSelectProject} locale={locale} />
         ) : (
           <div className="space-y-20">
             <div className="sticky top-0 z-30 space-y-16">
@@ -430,16 +432,16 @@ const App = () => {
                       setSelectedProject(null);
                       setResult(null);
                       setSelectedFunction(FUNCTION_DEFINITIONS[0].id);
-                  }}
-                  className="inline-flex items-center gap-6 rounded-10 border border-very-light-gray px-14 py-10 text-sm font-semibold text-charcoal hover:border-muted-teal hover:text-muted-teal transition-colors duration-150"
-                >
-                  ← プロジェクト一覧に戻る
-                </button>
-                <span className="text-xs uppercase tracking-[0.3em] text-medium-gray">Project</span>
-                <span className="text-sm font-semibold text-charcoal">{selectedProject.title}</span>
+                    }}
+                    className="inline-flex items-center gap-6 rounded-10 border border-very-light-gray px-14 py-10 text-sm font-semibold text-charcoal hover:border-muted-teal hover:text-muted-teal transition-colors duration-150"
+                  >
+                    ← プロジェクト一覧に戻る
+                  </button>
+                  <span className="text-xs uppercase tracking-[0.3em] text-medium-gray">Project</span>
+                  <span className="text-sm font-semibold text-charcoal">{selectedProject.title}</span>
+                </div>
+                <p className="text-xs text-medium-gray">最終更新 {selectedProject.updatedAt}</p>
               </div>
-              <p className="text-xs text-medium-gray">最終更新 {selectedProject.updatedAt}</p>
-            </div>
             </div>
 
             <div className="grid gap-16 lg:grid-cols-[minmax(280px,0.9fr)_1.3fr_1fr] lg:gap-24 lg:items-start" style={workspaceHeightStyle}>
@@ -500,6 +502,7 @@ const App = () => {
         onClose={() => setIsSettingsOpen(false)}
         onSave={setBaseUrl}
         baseUrl={baseUrl}
+        locale={locale}
       />
     </div>
   );
