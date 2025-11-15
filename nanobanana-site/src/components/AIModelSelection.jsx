@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ImageUploader from './ImageUploader';
 import LoadingButton from './LoadingButton';
 import ModelPicker from './ModelPicker';
+import ErrorMessage from './ErrorMessage';
 import { imageToBase64, validateImageFile } from '../utils/imageUtils';
 import { callWebhook } from '../utils/apiClient';
 import { WEBHOOKS } from '../config/webhooks';
@@ -121,7 +122,7 @@ const AIModelSelection = ({ onResult, baseUrl, setGlobalLoading, locale = 'ja' }
           enableSearch
         />
 
-        {error && <p className="rounded-12 border-2 border-warm-coral/30 bg-warm-coral/5 p-16 text-sm text-warm-coral">{error}</p>}
+        <ErrorMessage error={error} onDismiss={() => setError(null)} />
 
         <LoadingButton
           type="submit"
