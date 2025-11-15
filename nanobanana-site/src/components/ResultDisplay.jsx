@@ -1,7 +1,42 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-const ResultDisplay = ({ result, error, duration, isLoading, source }) => {
+const ResultDisplay = ({
+  result,
+  error,
+  duration,
+  isLoading,
+  source,
+  history = [],
+  onClearHistory,
+  variant = 'full',
+}) => {
   const [copied, setCopied] = useState(false);
+  const isInline = variant === 'inline';
+  const [activeTab, setActiveTab] = useState('latest');
+
+  useEffect(() => {
+    setActiveTab('latest');
+  }, [result, error, isLoading]);
+
+  const formatTimestamp = (isoString) => {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    if (Number.isNaN(date.getTime())) return isoString;
+    return date.toLocaleString('ja-JP', { hour12: false });
+  };
+
+  const statusMeta = (() => {
+    if (isLoading) {
+      return { label: '処理中', icon: '⏳', className: 'bg-soft-gold/20 text-soft-gold' };
+    }
+    if (error) {
+      return { label: 'エラー', icon: '⚠️', className: 'bg-warm-coral/15 text-warm-coral' };
+    }
+    if (result) {
+      return { label: '完了', icon: '✓', className: 'bg-muted-teal/15 text-muted-teal' };
+    }
+    return { label: '待機中', icon: '💤', className: 'bg-very-light-gray text-medium-gray' };
+  })();
 
   const renderContent = () => {
     if (isLoading) {
@@ -113,16 +148,115 @@ const ResultDisplay = ({ result, error, duration, isLoading, source }) => {
     );
   };
 
-  return (
-    <section className="glass-panel space-y-24 p-32" aria-live="polite">
-      <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.4em] text-medium-gray mb-8">Results</p>
-        <h2 className="text-2xl font-bold text-charcoal">処理結果</h2>
-        <p className="text-sm leading-[22px] text-medium-gray mt-12">
-          成功・エラーメッセージ、処理時間、API応答を表示します。
-        </p>
+  const renderHistory = () => {
+    if (!history.length) {
+      return (
+        <div className="flex items-start gap-12 text-medium-gray">
+          <span className="text-xl" role="img" aria-hidden="true">🗂️</span>
+          <p className="text-sm leading-[22px]">
+            まだ履歴がありません。ワークフローを実行するとここに表示されます。
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-12">
+        {history.map((entry) => {
+          const success = entry.result && !entry.error;
+          const previewSource = success
+            ? JSON.stringify(entry.result, null, 2)
+            : entry.error || 'エラー';
+          const preview = previewSource.length > 180 ? `${previewSource.slice(0, 180)}…` : previewSource;
+          return (
+            <div
+              key={entry.id}
+              className="rounded-12 border border-very-light-gray bg-soft-white/90 p-16 shadow-level-1"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-12">
+                <div className="flex items-center gap-8 text-sm font-semibold">
+                  <span
+                    className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-xs ${
+                      success ? 'bg-muted-teal/15 text-muted-teal' : 'bg-warm-coral/15 text-warm-coral'
+                    }`}
+                    aria-hidden="true"
+                  >
+                    {success ? '✓' : '!'}
+                  </span>
+                  {success ? '成功' : '失敗'}
+                  {entry.source && (
+                    <span className="text-xs font-medium text-medium-gray">/ {entry.source}</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-10 text-xs text-medium-gray">
+                  {typeof entry.duration === 'number' && (
+                    <span className="inline-flex items-center gap-4">
+                      ⏱️ {entry.duration.toFixed(2)}秒
+                    </span>
+                  )}
+                  <span>{formatTimestamp(entry.timestamp)}</span>
+                </div>
+              </div>
+              <pre className="mt-12 text-xs leading-[20px] text-charcoal/90 font-mono whitespace-pre-wrap break-words">
+                {preview}
+              </pre>
+            </div>
+          );
+        })}
       </div>
-      {renderContent()}
+    );
+  };
+
+  return (
+    <section
+      className={`glass-panel ${isInline ? 'space-y-16 p-24' : 'space-y-24 p-32'}`}
+      aria-live="polite"
+    >
+      <div className={`flex ${isInline ? 'items-center justify-between gap-16' : 'flex-col gap-8'}`}>
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-[0.4em] text-medium-gray">Results</p>
+          <h2 className="text-2xl font-bold text-charcoal">処理結果</h2>
+          {!isInline && (
+            <p className="text-sm leading-[22px] text-medium-gray mt-8">
+              成功・エラーメッセージ、処理時間、API応答を表示します。
+            </p>
+          )}
+        </div>
+        <div className="flex items-center gap-12">
+          <span
+            className={`inline-flex items-center gap-6 rounded-12 px-16 py-6 text-xs font-semibold ${statusMeta.className}`}
+          >
+            <span aria-hidden="true">{statusMeta.icon}</span>
+            {statusMeta.label}
+          </span>
+          {history.length > 0 && (
+            <button
+              type="button"
+              onClick={() => onClearHistory?.()}
+              className="text-xs font-medium text-medium-gray underline-offset-4 hover:text-charcoal"
+            >
+              履歴をクリア
+            </button>
+          )}
+        </div>
+      </div>
+      <div className="flex gap-12 border-b border-very-light-gray pb-8 text-sm font-semibold">
+        <button
+          type="button"
+          onClick={() => setActiveTab('latest')}
+          className={`pb-8 transition-colors ${activeTab === 'latest' ? 'text-charcoal border-b-2 border-muted-teal' : 'text-medium-gray hover:text-charcoal'}`}
+        >
+          最新
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('history')}
+          className={`pb-8 transition-colors ${activeTab === 'history' ? 'text-charcoal border-b-2 border-muted-teal' : 'text-medium-gray hover:text-charcoal'}`}
+        >
+          履歴 ({history.length})
+        </button>
+      </div>
+      {activeTab === 'latest' ? renderContent() : renderHistory()}
     </section>
   );
 };

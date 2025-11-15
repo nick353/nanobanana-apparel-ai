@@ -21,6 +21,7 @@ const FUNCTION_DEFINITIONS = [
     description: 'テキストからAIが方向性を提案',
     icon: '✨',
     component: DesignIdeaGenerator,
+    category: 'ideation',
   },
   {
     id: 'designVariation',
@@ -28,6 +29,7 @@ const FUNCTION_DEFINITIONS = [
     description: '変更要素を指定して展開',
     icon: '🎨',
     component: DesignVariation,
+    category: 'ideation',
   },
   {
     id: 'aiModelWearing',
@@ -35,6 +37,7 @@ const FUNCTION_DEFINITIONS = [
     description: 'モデルや背景を選んで生成',
     icon: '🧍',
     component: AIModelWearing,
+    category: 'modeling',
   },
   {
     id: 'imageRetouch',
@@ -42,6 +45,7 @@ const FUNCTION_DEFINITIONS = [
     description: '汚れ消し・質感調整など',
     icon: '🛠️',
     component: ImageRetouch,
+    category: 'editing',
   },
   {
     id: 'colorCustomize',
@@ -49,6 +53,7 @@ const FUNCTION_DEFINITIONS = [
     description: 'カラー変更や差し替え',
     icon: '🎯',
     component: ColorCustomize,
+    category: 'editing',
   },
   {
     id: 'backgroundChange',
@@ -56,6 +61,7 @@ const FUNCTION_DEFINITIONS = [
     description: '背景プリセット切り替え',
     icon: '🌄',
     component: BackgroundChange,
+    category: 'editing',
   },
   {
     id: 'designInstruction',
@@ -63,6 +69,7 @@ const FUNCTION_DEFINITIONS = [
     description: '自由テキストと画像を送信',
     icon: '📝',
     component: DesignInstruction,
+    category: 'advanced',
   },
   {
     id: 'backgroundSelection',
@@ -70,6 +77,7 @@ const FUNCTION_DEFINITIONS = [
     description: '背景素材を指定して合成',
     icon: '🖼️',
     component: BackgroundSelection,
+    category: 'assets',
   },
   {
     id: 'aiModelSelection',
@@ -77,10 +85,18 @@ const FUNCTION_DEFINITIONS = [
     description: '着用モデルを選んで生成',
     icon: '🤖',
     component: AIModelSelection,
+    category: 'modeling',
   },
 ];
 
 const storageKey = 'nanobananaBaseUrl';
+
+const createHistoryId = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return `history-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+};
 
 const App = () => {
   const [selectedFunction, setSelectedFunction] = useState(FUNCTION_DEFINITIONS[0].id);
@@ -88,6 +104,7 @@ const App = () => {
   const [error, setError] = useState(null);
   const [duration, setDuration] = useState(null);
   const [source, setSource] = useState(null);
+  const [resultHistory, setResultHistory] = useState([]);
   const [globalLoading, setGlobalLoading] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [baseUrl, setBaseUrl] = useState(() => {
@@ -108,6 +125,7 @@ const App = () => {
     setError(null);
     setDuration(null);
     setSource(null);
+    setResultHistory([]);
   }, [selectedFunction]);
 
   const handleResult = ({ result: nextResult, error: nextError, duration: nextDuration, source: nextSource }) => {
@@ -115,6 +133,15 @@ const App = () => {
     setError(nextError);
     setDuration(nextDuration);
     setSource(nextSource);
+    const entry = {
+      id: createHistoryId(),
+      timestamp: new Date().toISOString(),
+      result: nextResult,
+      error: nextError,
+      duration: nextDuration,
+      source: nextSource,
+    };
+    setResultHistory((prev) => [entry, ...prev].slice(0, 8));
   };
 
   const CurrentComponent = useMemo(
@@ -123,46 +150,53 @@ const App = () => {
   );
 
   return (
-    <div className="min-h-screen bg-warm-cream pb-96">
+    <div className="min-h-screen bg-warm-cream pb-48 md:pb-96">
       {globalLoading && (
         <div className="progress-indicator fixed inset-x-0 top-0 z-50">
           <span className="sr-only">処理中</span>
         </div>
       )}
 
-      <div className="mx-auto flex max-w-7xl flex-col gap-40 px-24 py-48 md:px-40 lg:px-64">
+      <div className="mx-auto flex max-w-7xl flex-col gap-32 px-24 py-32 md:gap-40 md:px-40 lg:px-64 lg:py-48">
         <Header onOpenSettings={() => setIsSettingsOpen(true)} baseUrl={baseUrl} />
 
-        <div className="grid gap-32 lg:grid-cols-[minmax(340px,1fr)_2fr] lg:gap-40">
-          <FunctionSelector
-            functions={FUNCTION_DEFINITIONS}
-            selectedFunction={selectedFunction}
-            onSelect={setSelectedFunction}
-          />
+        <div className="grid gap-24 lg:grid-cols-[minmax(320px,1fr)_1.8fr] lg:gap-32">
+          <div className="lg:self-start">
+            <FunctionSelector
+              functions={FUNCTION_DEFINITIONS}
+              selectedFunction={selectedFunction}
+              onSelect={setSelectedFunction}
+            />
+          </div>
 
-          <div className="glass-panel lg:col-span-1 p-32 shadow-card">
-            {CurrentComponent ? (
-              <CurrentComponent
-                onResult={handleResult}
-                baseUrl={baseUrl}
-                setGlobalLoading={setGlobalLoading}
-              />
-            ) : (
-              <div className="flex items-start gap-12 text-medium-gray">
-                <span className="text-2xl" role="img" aria-hidden="true">⚠️</span>
-                <p className="text-sm leading-[22px]">選択したワークフローが見つかりません。</p>
-              </div>
-            )}
+          <div className="space-y-20 lg:space-y-24">
+            <div className="glass-panel p-24 md:p-32 shadow-card">
+              {CurrentComponent ? (
+                <CurrentComponent
+                  onResult={handleResult}
+                  baseUrl={baseUrl}
+                  setGlobalLoading={setGlobalLoading}
+                />
+              ) : (
+                <div className="flex items-start gap-12 text-medium-gray">
+                  <span className="text-2xl" role="img" aria-hidden="true">⚠️</span>
+                  <p className="text-sm leading-[22px]">選択したワークフローが見つかりません。</p>
+                </div>
+              )}
+            </div>
+
+            <ResultDisplay
+              result={result}
+              error={error}
+              duration={duration}
+              isLoading={globalLoading}
+              source={source}
+              history={resultHistory}
+              onClearHistory={() => setResultHistory([])}
+              variant="inline"
+            />
           </div>
         </div>
-
-        <ResultDisplay
-          result={result}
-          error={error}
-          duration={duration}
-          isLoading={globalLoading}
-          source={source}
-        />
       </div>
 
       <SettingsModal
