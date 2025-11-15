@@ -273,6 +273,7 @@ const App = () => {
     setResultHistory([]);
   }, [selectedFunction, selectedProject]);
 
+
   const handleResult = ({ result: nextResult, error: nextError, duration: nextDuration, source: nextSource }) => {
     setResult(nextResult);
     setError(nextError);

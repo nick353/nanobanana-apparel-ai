@@ -9,6 +9,7 @@ const ResultDisplay = ({
   history = [],
   onClearHistory,
   variant = 'full',
+  assets = [],
 }) => {
   const [copied, setCopied] = useState(false);
   const isInline = variant === 'inline';
@@ -149,7 +150,7 @@ const ResultDisplay = ({
   };
 
   const renderHistory = () => {
-    if (!history.length) {
+    if (!history.length && !assets.length) {
       return (
         <div className="flex items-start gap-12 text-medium-gray">
           <span className="text-xl" role="img" aria-hidden="true">🗂️</span>
@@ -161,48 +162,73 @@ const ResultDisplay = ({
     }
 
     return (
-      <div className="space-y-12">
-        {history.map((entry) => {
-          const success = entry.result && !entry.error;
-          const previewSource = success
-            ? JSON.stringify(entry.result, null, 2)
-            : entry.error || 'エラー';
-          const preview = previewSource.length > 180 ? `${previewSource.slice(0, 180)}…` : previewSource;
-          return (
-            <div
-              key={entry.id}
-              className="rounded-12 border border-very-light-gray bg-soft-white/90 p-16 shadow-level-1"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-12">
-                <div className="flex items-center gap-8 text-sm font-semibold">
-                  <span
-                    className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-xs ${
-                      success ? 'bg-muted-teal/15 text-muted-teal' : 'bg-warm-coral/15 text-warm-coral'
-                    }`}
-                    aria-hidden="true"
-                  >
-                    {success ? '✓' : '!'}
-                  </span>
-                  {success ? '成功' : '失敗'}
-                  {entry.source && (
-                    <span className="text-xs font-medium text-medium-gray">/ {entry.source}</span>
-                  )}
-                </div>
-                <div className="flex items-center gap-10 text-xs text-medium-gray">
-                  {typeof entry.duration === 'number' && (
-                    <span className="inline-flex items-center gap-4">
-                      ⏱️ {entry.duration.toFixed(2)}秒
-                    </span>
-                  )}
-                  <span>{formatTimestamp(entry.timestamp)}</span>
-                </div>
-              </div>
-              <pre className="mt-12 text-xs leading-[20px] text-charcoal/90 font-mono whitespace-pre-wrap break-words">
-                {preview}
-              </pre>
+      <div className="space-y-16">
+        {assets.length > 0 && (
+          <div className="rounded-12 border border-very-light-gray bg-soft-white/90 p-14 shadow-level-1">
+            <div className="flex items-center justify-between mb-10">
+              <p className="text-sm font-semibold text-charcoal">アセットギャラリー（近日強化予定）</p>
+              <span className="text-xs text-medium-gray">{assets.length} items</span>
             </div>
-          );
-        })}
+            <div className="grid grid-cols-3 gap-8">
+              {assets.slice(0, 6).map((asset) => (
+                <div key={asset.id} className="aspect-square rounded-10 bg-very-light-gray flex items-center justify-center text-medium-gray text-xs">
+                  {asset.thumb ? (
+                    <img src={asset.thumb} alt="" className="h-full w-full rounded-10 object-cover" />
+                  ) : (
+                    'Soon'
+                  )}
+                </div>
+              ))}
+              {assets.length === 0 && <div className="text-xs text-medium-gray">生成結果がここに並びます</div>}
+            </div>
+          </div>
+        )}
+
+        {history.length > 0 && (
+          <div className="space-y-12">
+            {history.map((entry) => {
+              const success = entry.result && !entry.error;
+              const previewSource = success
+                ? JSON.stringify(entry.result, null, 2)
+                : entry.error || 'エラー';
+              const preview = previewSource.length > 180 ? `${previewSource.slice(0, 180)}…` : previewSource;
+              return (
+                <div
+                  key={entry.id}
+                  className="rounded-12 border border-very-light-gray bg-soft-white/90 p-16 shadow-level-1"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-12">
+                    <div className="flex items-center gap-8 text-sm font-semibold">
+                      <span
+                        className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-xs ${
+                          success ? 'bg-muted-teal/15 text-muted-teal' : 'bg-warm-coral/15 text-warm-coral'
+                        }`}
+                        aria-hidden="true"
+                      >
+                        {success ? '✓' : '!'}
+                      </span>
+                      {success ? '成功' : '失敗'}
+                      {entry.source && (
+                        <span className="text-xs font-medium text-medium-gray">/ {entry.source}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-10 text-xs text-medium-gray">
+                      {typeof entry.duration === 'number' && (
+                        <span className="inline-flex items-center gap-4">
+                          ⏱️ {entry.duration.toFixed(2)}秒
+                        </span>
+                      )}
+                      <span>{formatTimestamp(entry.timestamp)}</span>
+                    </div>
+                  </div>
+                  <pre className="mt-12 text-xs leading-[20px] text-charcoal/90 font-mono whitespace-pre-wrap break-words">
+                    {preview}
+                  </pre>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   };
