@@ -256,10 +256,12 @@ const App = () => {
     if (typeof window !== 'undefined') {
       const last = localStorage.getItem('nb_lastProjectId');
       if (last) {
-        return SAMPLE_PROJECTS.find((p) => p.id === last) || null;
+        const found = SAMPLE_PROJECTS.find((p) => p.id === last);
+        if (found) return found;
       }
     }
-    return null;
+    // ログイン済み想定で即作業に入れるようデフォルトを最初のプロジェクトに
+    return SAMPLE_PROJECTS[0];
   });
   const [baseUrl, setBaseUrl] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -309,14 +311,14 @@ const App = () => {
         nextResult?.image,
         nextResult?.data?.images,
         nextResult?.data?.image,
-      ].flat ? [nextResult?.images, nextResult?.image, nextResult?.data?.images, nextResult?.data?.image].flat() : [];
+      ];
       return candidates
-        .filter(Boolean)
         .flatMap((item) => {
-          if (typeof item === 'string') return [item];
+          if (!item) return [];
           if (Array.isArray(item)) return item.filter(Boolean);
-          return [];
+          return [item];
         })
+        .filter((val) => typeof val === 'string' && val.trim().length > 0)
         .map((val) => ({ id: createHistoryId(), thumb: val }));
     };
 

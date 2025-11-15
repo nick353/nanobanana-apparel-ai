@@ -171,13 +171,25 @@ const ResultDisplay = ({
             </div>
             <div className="grid grid-cols-3 gap-8">
               {assets.slice(0, 6).map((asset) => (
-                <div key={asset.id} className="aspect-square rounded-10 bg-very-light-gray flex items-center justify-center text-medium-gray text-xs">
+                <a
+                  key={asset.id}
+                  href={asset.thumb}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group aspect-square rounded-10 bg-very-light-gray flex items-center justify-center text-medium-gray text-xs overflow-hidden"
+                  title="新しいタブで開く"
+                >
                   {asset.thumb ? (
-                    <img src={asset.thumb} alt="" className="h-full w-full rounded-10 object-cover" />
+                    <img
+                      src={asset.thumb}
+                      alt=""
+                      className="h-full w-full rounded-10 object-cover transition-transform duration-200 group-hover:scale-105"
+                      loading="lazy"
+                    />
                   ) : (
                     'Soon'
                   )}
-                </div>
+                </a>
               ))}
               {assets.length === 0 && <div className="text-xs text-medium-gray">生成結果がここに並びます</div>}
             </div>
