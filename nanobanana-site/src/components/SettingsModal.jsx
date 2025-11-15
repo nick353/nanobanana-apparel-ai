@@ -36,7 +36,7 @@ const SettingsModal = ({ isOpen, onClose, onSave, baseUrl }) => {
       onClick={onClose}
     >
       <div
-        className="glass-panel w-full max-w-lg p-32 shadow-level-4 scale-100 hover:scale-[1.01] transition-transform duration-200"
+        className="bg-white/95 backdrop-blur-glass border border-white/50 rounded-16 shadow-level-4 w-full max-w-lg p-32 scale-100 hover:scale-[1.01] transition-transform duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between mb-24">

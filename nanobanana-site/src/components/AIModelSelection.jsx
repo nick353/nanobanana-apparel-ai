@@ -109,6 +109,7 @@ const AIModelSelection = ({ onResult, baseUrl, setGlobalLoading, locale = 'ja' }
           preview={productImage}
           onFileSelect={handleImageUpload}
           required
+          locale={locale}
         />
 
         <ModelPicker

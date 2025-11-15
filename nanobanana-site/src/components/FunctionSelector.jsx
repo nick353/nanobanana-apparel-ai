@@ -102,7 +102,7 @@ const FunctionSelector = ({ functions, selectedFunction, onSelect, locale }) => 
   return (
     <aside
       id="workflow-panel"
-      className="glass-panel p-24 space-y-24 fade-in bg-gradient-to-br from-white/95 to-very-light-gray/30"
+      className="bg-white/90 backdrop-blur-glass border border-white/50 rounded-16 shadow-glass p-24 space-y-24 fade-in bg-gradient-to-br from-white/95 to-very-light-gray/30"
       aria-label="機能選択メニュー"
     >
       <div>

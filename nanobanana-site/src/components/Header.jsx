@@ -130,7 +130,7 @@ const Header = ({ onOpenSettings, baseUrl, locale = 'ja', onLocaleChange, suppor
 
   return (
     <header
-      className="glass-panel fade-in grid gap-24 p-24 md:p-32 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-32 lg:p-40 sticky top-0 z-20"
+      className="bg-white/80 backdrop-blur-glass border border-white/50 rounded-16 shadow-glass fade-in grid gap-24 p-24 md:p-32 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-32 lg:p-40 sticky top-0 z-20"
       aria-label="NanoBanana サイトヘッダー"
     >
       <div className="space-y-16">
@@ -156,7 +156,7 @@ const Header = ({ onOpenSettings, baseUrl, locale = 'ja', onLocaleChange, suppor
           <button
             type="button"
             onClick={handleJumpToWorkflows}
-            className="btn-primary px-32 py-14 text-sm"
+            className="inline-flex items-center justify-center rounded-12 bg-muted-teal px-32 py-14 text-sm font-semibold text-white shadow-level-2 hover:bg-muted-teal-hover hover:-translate-y-0.5 hover:shadow-level-3 active:bg-muted-teal-active active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-muted-teal transition-all duration-150"
           >
             ワークフローを見る
           </button>

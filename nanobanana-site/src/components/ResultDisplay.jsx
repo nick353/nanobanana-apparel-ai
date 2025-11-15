@@ -247,7 +247,7 @@ const ResultDisplay = ({
 
   return (
     <section
-      className={`glass-panel ${isInline ? 'space-y-16 p-24' : 'space-y-24 p-32'}`}
+      className={`bg-white/90 backdrop-blur-glass border border-white/50 rounded-16 shadow-glass ${isInline ? 'space-y-16 p-24' : 'space-y-24 p-32'}`}
       aria-live="polite"
     >
       <div className={`flex ${isInline ? 'items-center justify-between gap-16' : 'flex-col gap-8'}`}>

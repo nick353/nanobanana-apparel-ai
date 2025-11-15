@@ -5,7 +5,33 @@ import AutoResizeTextarea from './AutoResizeTextarea';
 import LoadingButton from './LoadingButton';
 import ErrorMessage from './ErrorMessage';
 
-const DesignIdeaGenerator = ({ onResult, baseUrl, setGlobalLoading }) => {
+const copy = {
+  ja: {
+    title: 'デザインアイデア創出',
+    subtitle: 'AI-Powered Design Ideation',
+    description: '思い描くスタイルや参考素材を自然言語で入力すると、AIがデザインの方向性を提案します。',
+    promptLabel: 'デザインプロンプト',
+    promptPlaceholder: '例: エコレザーを使ったミニマルなジャケット、都会的でジェンダーレスな雰囲気',
+    charCount: (length) => `${length} / 1000文字`,
+    buttonText: 'デザインアイデアを生成',
+    loadingText: 'AI生成中...',
+    errorPrompt: 'デザインプロンプトを入力してください',
+  },
+  en: {
+    title: 'Design Ideation',
+    subtitle: 'AI-Powered Design Ideation',
+    description: 'Describe your intended styles or references and AI proposes design directions.',
+    promptLabel: 'Design Prompt',
+    promptPlaceholder: 'e.g., Minimal eco-leather jacket with an urban genderless vibe',
+    charCount: (length) => `${length} / 1000 characters`,
+    buttonText: 'Generate Design Ideas',
+    loadingText: 'Generating...',
+    errorPrompt: 'Please enter a design prompt',
+  },
+};
+
+const DesignIdeaGenerator = ({ onResult, baseUrl, setGlobalLoading, locale = 'ja' }) => {
+  const text = copy[locale] || copy.ja;
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -14,7 +40,7 @@ const DesignIdeaGenerator = ({ onResult, baseUrl, setGlobalLoading }) => {
   const handleSubmit = async (event) => {
     event?.preventDefault();
     if (!prompt.trim()) {
-      setError('デザインプロンプトを入力してください');
+      setError(text.errorPrompt);
       return;
     }
 
@@ -30,11 +56,11 @@ const DesignIdeaGenerator = ({ onResult, baseUrl, setGlobalLoading }) => {
         baseUrl,
       );
       const duration = (performance.now() - start) / 1000;
-      onResult({ result: response, error: null, duration, source: 'デザインアイデア創出' });
-    } catch (err) {
-      const message = err.message || 'エラーが発生しました';
-      setError(message);
-      onResult({ result: null, error: message, duration: null, source: 'デザインアイデア創出' });
+        onResult({ result: response, error: null, duration, source: text.title });
+      } catch (err) {
+        const message = err.message || 'エラーが発生しました';
+        setError(message);
+        onResult({ result: null, error: message, duration: null, source: text.title });
     } finally {
       setLoading(false);
       setGlobalLoading?.(false);
@@ -54,19 +80,19 @@ const DesignIdeaGenerator = ({ onResult, baseUrl, setGlobalLoading }) => {
             ✨
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-charcoal">デザインアイデア創出</h2>
-            <p className="text-xs text-medium-gray mt-4">AI-Powered Design Ideation</p>
+            <h2 className="text-2xl font-bold text-charcoal">{text.title}</h2>
+            <p className="text-xs text-medium-gray mt-4">{text.subtitle}</p>
           </div>
         </div>
         <p className="text-base leading-[26px] text-medium-gray">
-          思い描くスタイルや参考素材を自然言語で入力すると、AIがデザインの方向性を提案します。
+          {text.description}
         </p>
       </div>
 
       <form ref={formRef} onSubmit={handleSubmit} className="space-y-20">
         <div>
           <label htmlFor="designPrompt" className="text-sm leading-[20px] font-semibold text-charcoal block mb-10">
-            デザインプロンプト <span className="text-warm-coral">*</span>
+            {text.promptLabel} <span className="text-warm-coral">*</span>
           </label>
           <AutoResizeTextarea
             id="designPrompt"
@@ -74,11 +100,11 @@ const DesignIdeaGenerator = ({ onResult, baseUrl, setGlobalLoading }) => {
             maxRows={12}
             value={prompt}
             onChange={(event) => setPrompt(event.target.value)}
-            placeholder="例: エコレザーを使ったミニマルなジャケット、都会的でジェンダーレスな雰囲気"
+            placeholder={text.promptPlaceholder}
             className="w-full rounded-12 border-2 border-light-gray bg-soft-white px-16 py-14 text-sm text-charcoal placeholder:text-medium-gray leading-relaxed focus:border-muted-teal focus:outline-none focus:ring-4 focus:ring-muted-teal/10 transition-all duration-200 shadow-sm hover:border-medium-gray"
           />
           <p className="text-xs text-medium-gray mt-10">
-            {prompt.length} / 1000文字
+            {text.charCount(prompt.length)}
           </p>
         </div>
 
@@ -87,11 +113,11 @@ const DesignIdeaGenerator = ({ onResult, baseUrl, setGlobalLoading }) => {
         <LoadingButton
           type="submit"
           loading={loading}
-          loadingText="AI生成中..."
+          loadingText={text.loadingText}
           icon="✨"
           className="w-full rounded-12 bg-muted-teal text-white px-24 py-14 text-sm font-semibold shadow-level-2 hover:bg-muted-teal-hover hover:-translate-y-0.5 hover:shadow-level-3 active:bg-muted-teal-active active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-light-gray disabled:text-medium-gray disabled:shadow-none"
         >
-          デザインアイデアを生成
+          {text.buttonText}
         </LoadingButton>
       </form>
     </section>

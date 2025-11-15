@@ -1,10 +1,40 @@
 import React, { useState } from 'react';
 import ImageUploader from './ImageUploader';
+import LoadingButton from './LoadingButton';
+import ErrorMessage from './ErrorMessage';
 import { imageToBase64, validateImageFile } from '../utils/imageUtils';
 import { callWebhook } from '../utils/apiClient';
 import { WEBHOOKS } from '../config/webhooks';
 
-const ColorCustomize = ({ onResult, baseUrl, setGlobalLoading }) => {
+const copy = {
+  ja: {
+    title: 'カラーカスタマイズ',
+    subtitle: 'Color Customize',
+    description: '商品画像から変更したい箇所を指定し、希望のカラーコードを入力します。',
+    helper: 'RGB / HEX カラーピッカー対応',
+    colorLabel: 'カラー',
+    partLabel: '変更箇所',
+    partPlaceholder: '例: 袖、襟、ロゴ部分',
+    errorMissing: '画像と変更箇所を入力してください',
+    button: 'カラーを変更',
+    loading: '処理中...',
+  },
+  en: {
+    title: 'Color Customize',
+    subtitle: 'Color Customize',
+    description: 'Specify the target area and desired color to recolor your product image.',
+    helper: 'RGB / HEX color picker compatible',
+    colorLabel: 'Color',
+    partLabel: 'Part to change',
+    partPlaceholder: 'e.g., sleeves, collar, logo area',
+    errorMissing: 'Please upload an image and specify the area to change',
+    button: 'Apply Color Change',
+    loading: 'Processing...',
+  },
+};
+
+const ColorCustomize = ({ onResult, baseUrl, setGlobalLoading, locale = 'ja' }) => {
+  const text = copy[locale] || copy.ja;
   const [imageBase64, setImageBase64] = useState(null);
   const [color, setColor] = useState('#2563eb');
   const [part, setPart] = useState('全体');
@@ -25,7 +55,7 @@ const ColorCustomize = ({ onResult, baseUrl, setGlobalLoading }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!imageBase64 || !part.trim()) {
-      setError('画像と変更箇所を入力してください');
+      setError(text.errorMissing);
       return;
     }
 
@@ -38,11 +68,11 @@ const ColorCustomize = ({ onResult, baseUrl, setGlobalLoading }) => {
       const payload = { imageBase64, color, part: part.trim() };
       const response = await callWebhook(WEBHOOKS.ENDPOINTS.colorCustomize, payload, baseUrl);
       const duration = (performance.now() - start) / 1000;
-      onResult({ result: response, error: null, duration, source: 'カラーカスタマイズ' });
+      onResult({ result: response, error: null, duration, source: text.title });
     } catch (err) {
       const message = err.message || 'エラーが発生しました';
       setError(message);
-      onResult({ result: null, error: message, duration: null, source: 'カラーカスタマイズ' });
+      onResult({ result: null, error: message, duration: null, source: text.title });
     } finally {
       setLoading(false);
       setGlobalLoading?.(false);
@@ -50,68 +80,81 @@ const ColorCustomize = ({ onResult, baseUrl, setGlobalLoading }) => {
   };
 
   return (
-    <section aria-label="カラーカスタマイズフォーム" className="space-y-6">
+    <section aria-label="カラーカスタマイズフォーム" className="space-y-24">
       <div>
-        <h2 className="text-2xl font-semibold text-brand-text">カラーカスタマイズ</h2>
-        <p className="text-sm text-gray-600">商品画像から変更したい箇所を指定し、希望のカラーコードを入力します。</p>
+        <div className="flex items-center gap-16 mb-16">
+          <div className="flex items-center justify-center w-56 h-56 rounded-16 bg-gradient-to-br from-muted-teal to-dusty-purple text-white text-2xl shadow-level-3">
+            🎯
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-charcoal">{text.title}</h2>
+            <p className="text-xs text-medium-gray mt-4">{text.subtitle}</p>
+          </div>
+        </div>
+        <p className="text-base leading-[26px] text-medium-gray">
+          {text.description}
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-20">
         <ImageUploader
           id="color-image"
           label="商品画像"
           preview={imageBase64}
           onFileSelect={handleUpload}
           required
-          helperText="RGB / HEX カラーピッカー対応"
+          helperText={text.helper}
+          locale={locale}
         />
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-12 md:grid-cols-2">
           <div>
-            <label htmlFor="colorPicker" className="text-sm font-medium text-gray-700">
-              カラー
+            <label htmlFor="colorPicker" className="text-sm leading-[20px] font-semibold text-charcoal block mb-10">
+              {text.colorLabel}
             </label>
-            <div className="mt-2 flex items-center gap-3 rounded-2xl border border-gray-300 px-4 py-2">
+            <div className="flex items-center gap-12 rounded-12 border border-light-gray bg-soft-white px-16 py-10">
               <input
                 id="colorPicker"
                 type="color"
                 value={color}
                 onChange={(event) => setColor(event.target.value)}
-                className="h-10 w-10 rounded-full border border-gray-200 bg-transparent"
+                className="h-40 w-40 rounded-full border border-very-light-gray bg-transparent"
               />
               <input
                 type="text"
                 value={color}
                 onChange={(event) => setColor(event.target.value)}
-                className="w-full border-none bg-transparent text-sm focus:outline-none"
+                className="w-full border-none bg-transparent text-sm text-charcoal focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="part" className="text-sm font-medium text-gray-700">
-              変更箇所
+            <label htmlFor="part" className="text-sm leading-[20px] font-semibold text-charcoal block mb-10">
+              {text.partLabel}
             </label>
             <input
               id="part"
               type="text"
               value={part}
               onChange={(event) => setPart(event.target.value)}
-              className="mt-2 w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-brand focus:outline-none"
-              placeholder="例: 袖、襟、ロゴ部分"
+              className="w-full rounded-12 border border-light-gray bg-soft-white px-16 py-14 text-sm text-charcoal placeholder:text-medium-gray focus:border-muted-teal focus:outline-none focus:ring-4 focus:ring-muted-teal/10 transition-all duration-200"
+              placeholder={text.partPlaceholder}
             />
           </div>
         </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        <ErrorMessage error={error} onDismiss={() => setError(null)} />
 
-        <button
+        <LoadingButton
           type="submit"
-          disabled={loading}
-          className="w-full rounded-2xl bg-brand px-5 py-3 font-semibold text-white shadow-soft transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+          loading={loading}
+          loadingText={text.loading}
+          icon="🎯"
+          className="w-full rounded-12 bg-muted-teal text-white px-24 py-14 text-sm font-semibold shadow-level-2 hover:bg-muted-teal-hover hover:-translate-y-0.5 hover:shadow-level-3 active:bg-muted-teal-active active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-light-gray disabled:text-medium-gray disabled:shadow-none transition-all duration-200"
         >
-          {loading ? '処理中...' : 'カラーを変更'}
-        </button>
+          {text.button}
+        </LoadingButton>
       </form>
     </section>
   );

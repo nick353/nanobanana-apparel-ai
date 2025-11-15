@@ -1,10 +1,36 @@
 import React, { useState } from 'react';
 import ImageUploader from './ImageUploader';
+import LoadingButton from './LoadingButton';
+import ErrorMessage from './ErrorMessage';
 import { imageToBase64, validateImageFile } from '../utils/imageUtils';
 import { callWebhook } from '../utils/apiClient';
 import { WEBHOOKS } from '../config/webhooks';
 
-const ImageRetouch = ({ onResult, baseUrl, setGlobalLoading }) => {
+const copy = {
+  ja: {
+    title: '画像レタッチ・修正',
+    subtitle: 'Image Retouch',
+    description: '汚れ消しや質感調整などの指示を入力し、商品画像を最適化します。',
+    instructionsLabel: '編集指示',
+    instructionsPlaceholder: '例: シワを減らし、明るさを+10、背景の影を弱くする',
+    errorMissing: '画像と編集指示を入力してください',
+    button: 'レタッチを実行',
+    loading: '処理中...',
+  },
+  en: {
+    title: 'Image Retouch',
+    subtitle: 'Image Retouch',
+    description: 'Describe the retouch instructions—remove stains, adjust brightness, etc.—and the image will be optimized.',
+    instructionsLabel: 'Retouch instructions',
+    instructionsPlaceholder: 'e.g., soften wrinkles, +10 brightness, reduce background shadows',
+    errorMissing: 'Please upload the image and provide retouch instructions',
+    button: 'Run Retouch',
+    loading: 'Processing...',
+  },
+};
+
+const ImageRetouch = ({ onResult, baseUrl, setGlobalLoading, locale = 'ja' }) => {
+  const text = copy[locale] || copy.ja;
   const [imageBase64, setImageBase64] = useState(null);
   const [instructions, setInstructions] = useState('');
   const [error, setError] = useState(null);
@@ -24,7 +50,7 @@ const ImageRetouch = ({ onResult, baseUrl, setGlobalLoading }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!imageBase64 || !instructions.trim()) {
-      setError('画像と編集指示を入力してください');
+      setError(text.errorMissing);
       return;
     }
 
@@ -40,11 +66,11 @@ const ImageRetouch = ({ onResult, baseUrl, setGlobalLoading }) => {
         baseUrl,
       );
       const duration = (performance.now() - start) / 1000;
-      onResult({ result: response, error: null, duration, source: '画像レタッチ・修正' });
+      onResult({ result: response, error: null, duration, source: text.title });
     } catch (err) {
       const message = err.message || 'エラーが発生しました';
       setError(message);
-      onResult({ result: null, error: message, duration: null, source: '画像レタッチ・修正' });
+      onResult({ result: null, error: message, duration: null, source: text.title });
     } finally {
       setLoading(false);
       setGlobalLoading?.(false);
@@ -52,13 +78,23 @@ const ImageRetouch = ({ onResult, baseUrl, setGlobalLoading }) => {
   };
 
   return (
-    <section aria-label="画像レタッチフォーム" className="space-y-6">
+    <section aria-label="画像レタッチフォーム" className="space-y-24">
       <div>
-        <h2 className="text-2xl font-semibold text-brand-text">画像レタッチ・修正</h2>
-        <p className="text-sm text-gray-600">汚れ消しや質感調整などの指示を入力し、商品画像を最適化します。</p>
+        <div className="flex items-center gap-16 mb-16">
+          <div className="flex items-center justify-center w-56 h-56 rounded-16 bg-gradient-to-br from-muted-teal to-dusty-purple text-white text-2xl shadow-level-3">
+            🛠️
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-charcoal">{text.title}</h2>
+            <p className="text-xs text-medium-gray mt-4">{text.subtitle}</p>
+          </div>
+        </div>
+        <p className="text-base leading-[26px] text-medium-gray">
+          {text.description}
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-20">
         <ImageUploader
           id="retouch-image"
           label="対象画像"
@@ -66,31 +102,34 @@ const ImageRetouch = ({ onResult, baseUrl, setGlobalLoading }) => {
           onFileSelect={handleUpload}
           required
           helperText="10MB以下 / JPG, PNG, WEBP"
+          locale={locale}
         />
 
         <div>
-          <label htmlFor="retouchInstructions" className="text-sm font-medium text-gray-700">
-            編集指示
+          <label htmlFor="retouchInstructions" className="text-sm leading-[20px] font-semibold text-charcoal block mb-10">
+            {text.instructionsLabel}
           </label>
           <textarea
             id="retouchInstructions"
             rows={4}
             value={instructions}
             onChange={(event) => setInstructions(event.target.value)}
-            className="mt-2 w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
-            placeholder="例: シワを減らし、明るさを+10、背景の影を弱くする"
+            className="w-full rounded-12 border border-light-gray bg-soft-white px-16 py-14 text-sm text-charcoal placeholder:text-medium-gray focus:border-muted-teal focus:outline-none focus:ring-4 focus:ring-muted-teal/10 transition-all duration-200"
+            placeholder={text.instructionsPlaceholder}
           />
         </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        <ErrorMessage error={error} onDismiss={() => setError(null)} />
 
-        <button
+        <LoadingButton
           type="submit"
-          disabled={loading}
-          className="w-full rounded-2xl bg-brand px-5 py-3 font-semibold text-white shadow-soft transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+          loading={loading}
+          loadingText={text.loading}
+          icon="🛠️"
+          className="w-full rounded-12 bg-muted-teal text-white px-24 py-14 text-sm font-semibold shadow-level-2 hover:bg-muted-teal-hover hover:-translate-y-0.5 hover:shadow-level-3 active:bg-muted-teal-active active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-light-gray disabled:text-medium-gray disabled:shadow-none transition-all duration-200"
         >
-          {loading ? '処理中...' : 'レタッチを実行'}
-        </button>
+          {text.button}
+        </LoadingButton>
       </form>
     </section>
   );

@@ -1,12 +1,38 @@
 import React, { useState } from 'react';
 import ImageUploader from './ImageUploader';
+import LoadingButton from './LoadingButton';
+import ErrorMessage from './ErrorMessage';
 import { imageToBase64, validateImageFile } from '../utils/imageUtils';
 import { callWebhook } from '../utils/apiClient';
 import { WEBHOOKS } from '../config/webhooks';
 
 const backgroundOptions = ['studio', 'outdoor', 'street', 'nature', 'custom'];
 
-const BackgroundChange = ({ onResult, baseUrl, setGlobalLoading }) => {
+const copy = {
+  ja: {
+    title: '背景変更',
+    subtitle: 'Background Switch',
+    description: '商品被写体を維持したまま、背景のみを差し替えます。用途に合わせてプリセットを選べます。',
+    bgLabel: '背景タイプ',
+    keepLabel: '商品部分を保持する',
+    errorMissing: '商品画像をアップロードしてください',
+    button: '背景を変更',
+    loading: '処理中...',
+  },
+  en: {
+    title: 'Background Switch',
+    subtitle: 'Background Switch',
+    description: 'Swap the backdrop while keeping the product intact. Choose from preset scenes.',
+    bgLabel: 'Background type',
+    keepLabel: 'Keep product subject',
+    errorMissing: 'Please upload a product image',
+    button: 'Change Background',
+    loading: 'Processing...',
+  },
+};
+
+const BackgroundChange = ({ onResult, baseUrl, setGlobalLoading, locale = 'ja' }) => {
+  const text = copy[locale] || copy.ja;
   const [imageBase64, setImageBase64] = useState(null);
   const [background, setBackground] = useState(backgroundOptions[0]);
   const [keepProduct, setKeepProduct] = useState(true);
@@ -27,7 +53,7 @@ const BackgroundChange = ({ onResult, baseUrl, setGlobalLoading }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!imageBase64) {
-      setError('商品画像をアップロードしてください');
+      setError(text.errorMissing);
       return;
     }
 
@@ -44,11 +70,11 @@ const BackgroundChange = ({ onResult, baseUrl, setGlobalLoading }) => {
         baseUrl,
       );
       const duration = (performance.now() - start) / 1000;
-      onResult({ result: response, error: null, duration, source: '背景変更' });
+      onResult({ result: response, error: null, duration, source: text.title });
     } catch (err) {
       const message = err.message || 'エラーが発生しました';
       setError(message);
-      onResult({ result: null, error: message, duration: null, source: '背景変更' });
+      onResult({ result: null, error: message, duration: null, source: text.title });
     } finally {
       setLoading(false);
       setGlobalLoading?.(false);
@@ -56,30 +82,41 @@ const BackgroundChange = ({ onResult, baseUrl, setGlobalLoading }) => {
   };
 
   return (
-    <section aria-label="背景変更フォーム" className="space-y-6">
+    <section aria-label="背景変更フォーム" className="space-y-24">
       <div>
-        <h2 className="text-2xl font-semibold text-brand-text">背景変更</h2>
-        <p className="text-sm text-gray-600">商品被写体を維持したまま、背景のみを差し替えます。用途に合わせてプリセットを選べます。</p>
+        <div className="flex items-center gap-16 mb-16">
+          <div className="flex items-center justify-center w-56 h-56 rounded-16 bg-gradient-to-br from-muted-teal to-sky-blue text-white text-2xl shadow-level-3">
+            🌄
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-charcoal">{text.title}</h2>
+            <p className="text-xs text-medium-gray mt-4">{text.subtitle}</p>
+          </div>
+        </div>
+        <p className="text-base leading-[26px] text-medium-gray">
+          {text.description}
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-20">
         <ImageUploader
           id="background-change-image"
           label="商品画像"
           preview={imageBase64}
           onFileSelect={handleUpload}
           required
+          locale={locale}
         />
 
         <div>
-          <label htmlFor="backgroundType" className="text-sm font-medium text-gray-700">
-            背景タイプ
+          <label htmlFor="backgroundType" className="text-sm leading-[20px] font-semibold text-charcoal block mb-10">
+            {text.bgLabel}
           </label>
           <select
             id="backgroundType"
             value={background}
             onChange={(event) => setBackground(event.target.value)}
-            className="mt-2 w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-brand focus:outline-none"
+            className="w-full rounded-12 border border-light-gray bg-soft-white px-16 py-14 text-sm text-charcoal focus:border-muted-teal focus:outline-none focus:ring-4 focus:ring-muted-teal/10 transition-all duration-200"
           >
             {backgroundOptions.map((option) => (
               <option key={option} value={option}>
@@ -89,25 +126,27 @@ const BackgroundChange = ({ onResult, baseUrl, setGlobalLoading }) => {
           </select>
         </div>
 
-        <label className="flex items-center gap-3 text-sm text-gray-700">
+        <label className="flex items-center gap-10 text-sm text-charcoal">
           <input
             type="checkbox"
             checked={keepProduct}
             onChange={(event) => setKeepProduct(event.target.checked)}
-            className="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand"
+            className="h-16 w-16 rounded border-light-gray text-muted-teal focus:ring-muted-teal"
           />
-          商品部分を保持する
+          {text.keepLabel}
         </label>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        <ErrorMessage error={error} onDismiss={() => setError(null)} />
 
-        <button
+        <LoadingButton
           type="submit"
-          disabled={loading}
-          className="w-full rounded-2xl bg-brand px-5 py-3 font-semibold text-white shadow-soft transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+          loading={loading}
+          loadingText={text.loading}
+          icon="🌄"
+          className="w-full rounded-12 bg-muted-teal text-white px-24 py-14 text-sm font-semibold shadow-level-2 hover:bg-muted-teal-hover hover:-translate-y-0.5 hover:shadow-level-3 active:bg-muted-teal-active active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-light-gray disabled:text-medium-gray disabled:shadow-none transition-all duration-200"
         >
-          {loading ? '処理中...' : '背景を変更'}
-        </button>
+          {text.button}
+        </LoadingButton>
       </form>
     </section>
   );

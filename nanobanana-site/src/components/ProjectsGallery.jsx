@@ -2,7 +2,7 @@ import React from 'react';
 
 const ProjectsGallery = ({ projects, onSelect }) => {
   return (
-    <section className="glass-panel p-24 md:p-32 space-y-16" aria-label="プロジェクト一覧">
+    <section className="bg-white/90 backdrop-blur-glass border border-white/50 rounded-16 shadow-glass p-24 md:p-32 space-y-16" aria-label="プロジェクト一覧">
       <div className="flex items-start justify-between gap-16">
         <div>
           <p className="text-[11px] uppercase tracking-[0.4em] text-muted-teal font-semibold mb-6">Projects</p>

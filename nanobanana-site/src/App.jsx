@@ -374,7 +374,7 @@ const App = () => {
           <ProjectsGallery projects={SAMPLE_PROJECTS} onSelect={handleSelectProject} />
         ) : (
           <div className="space-y-20">
-            <div className="sticky top-24 z-20 glass-panel p-16 md:p-20 shadow-level-2 flex flex-wrap items-center justify-between gap-12">
+            <div className="sticky top-24 z-20 bg-white/90 backdrop-blur-glass border border-white/50 rounded-16 shadow-level-2 p-16 md:p-20 flex flex-wrap items-center justify-between gap-12">
               <div className="flex items-center gap-10 text-sm text-medium-gray">
                 <button
                   type="button"
@@ -405,7 +405,7 @@ const App = () => {
               </div>
 
               <div className="space-y-20 h-full overflow-y-auto pr-2">
-                <div className="glass-panel p-24 md:p-32 shadow-card">
+                <div className="bg-white/90 backdrop-blur-glass border border-white/50 rounded-16 shadow-card p-24 md:p-32">
                   <div className="space-y-16">
                     {CurrentComponent ? (
                       <CurrentComponent

@@ -1,5 +1,20 @@
 import React, { useState, useRef } from 'react';
 
+const copy = {
+  ja: {
+    dragText: '画像をドラッグ＆ドロップ、または',
+    actionText: 'ファイルを選択',
+    previewAlt: 'アップロードプレビュー',
+    ariaUpload: '画像をアップロード',
+  },
+  en: {
+    dragText: 'Drag & drop an image, or',
+    actionText: 'choose a file',
+    previewAlt: 'Upload preview',
+    ariaUpload: 'Upload image',
+  },
+};
+
 const ImageUploader = ({
   id,
   label,
@@ -9,7 +24,9 @@ const ImageUploader = ({
   accept = 'image/*',
   required = false,
   helperText,
+  locale = 'ja',
 }) => {
+  const text = copy[locale] || copy.ja;
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef(null);
 
@@ -67,15 +84,15 @@ const ImageUploader = ({
             inputRef.current?.click();
           }
         }}
-        aria-label={`${label}をアップロード`}
+        aria-label={`${label} - ${text.ariaUpload}`}
       >
         <div className="flex flex-col items-center gap-8">
           <div className="w-48 h-48 rounded-12 bg-muted-teal/10 flex items-center justify-center text-muted-teal text-2xl">
             📸
           </div>
           <p className="text-sm text-charcoal">
-            画像をドラッグ＆ドロップ、または
-            <span className="text-muted-teal font-semibold"> ファイルを選択</span>
+            {text.dragText}
+            <span className="text-muted-teal font-semibold"> {text.actionText}</span>
           </p>
           {description && <p className="text-xs text-medium-gray mt-4">{description}</p>}
         </div>
@@ -93,7 +110,7 @@ const ImageUploader = ({
         <div className="rounded-12 border border-light-gray bg-soft-white p-12 shadow-card">
           <img
             src={`data:image/*;base64,${preview}`}
-            alt="アップロードプレビュー"
+            alt={text.previewAlt}
             className="h-auto max-h-[300px] w-full rounded-8 object-cover"
           />
         </div>

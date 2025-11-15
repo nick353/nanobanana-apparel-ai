@@ -130,6 +130,7 @@ const AIModelWearing = ({ onResult, baseUrl, setGlobalLoading, locale = 'ja' }) 
           onFileSelect={handleImageUpload}
           required
           helperText="10MB以下のJPG / PNG / WEBP"
+          locale={locale}
         />
 
         <ModelPicker
