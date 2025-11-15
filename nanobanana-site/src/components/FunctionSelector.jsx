@@ -68,15 +68,17 @@ const FunctionSelector = ({ functions, selectedFunction, onSelect, locale }) => 
     setExpandedSections(categoryIds.reduce((acc, id) => ({ ...acc, [id]: true }), {}));
   }, [categoryIds]);
 
+  const normalize = (text) => (text || '').toString().normalize('NFKC').toLowerCase();
+
   const filteredFunctions = useMemo(() => {
     if (!searchQuery.trim()) return functions;
 
-    const query = searchQuery.toLowerCase();
+    const query = normalize(searchQuery);
     return functions.filter((fn) => {
       const localized = getLocalizedContent(fn, locale);
       return (
-        localized.name.toLowerCase().includes(query) ||
-        localized.description.toLowerCase().includes(query)
+        normalize(localized.name).includes(query) ||
+        normalize(localized.description).includes(query)
       );
     });
   }, [functions, locale, searchQuery]);

@@ -69,13 +69,6 @@ const Header = ({ onOpenSettings, baseUrl, locale = 'ja', onLocaleChange, suppor
           >
             ワークフローを見る
           </button>
-          <button
-            type="button"
-            onClick={onOpenSettings}
-            className="btn-secondary px-32 py-14 text-sm"
-          >
-            Webhook設定
-          </button>
         </div>
       </div>
 
@@ -110,19 +103,11 @@ const Header = ({ onOpenSettings, baseUrl, locale = 'ja', onLocaleChange, suppor
           <div className="flex flex-wrap items-center gap-12 border-t border-very-light-gray pt-16">
             <button
               type="button"
-              onClick={onOpenSettings}
-              className="inline-flex items-center gap-8 rounded-12 bg-muted-teal/10 px-16 py-10 text-sm font-semibold text-muted-teal hover:bg-muted-teal/20 transition-colors duration-150"
-            >
-              <span role="img" aria-hidden="true">⚙️</span>
-              Webhookを設定
-            </button>
-            <button
-              type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="inline-flex items-center gap-6 rounded-12 border border-very-light-gray px-16 py-10 text-sm font-medium text-charcoal hover:border-muted-teal hover:text-muted-teal transition-colors duration-150"
               aria-expanded={isMenuOpen}
             >
-              詳細
+              ⚙️ 設定
               <svg className={`w-16 h-16 transition-transform duration-200 ${isMenuOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>

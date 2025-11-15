@@ -54,7 +54,7 @@ const SettingsModal = ({ isOpen, onClose, onSave, baseUrl }) => {
           <button
             type="button"
             onClick={onClose}
-            className="flex items-center justify-center w-40 h-40 rounded-8 bg-very-light-gray text-medium-gray hover:bg-warm-coral/10 hover:text-warm-coral active:scale-95 transition-all duration-150 ml-16"
+            className="flex items-center justify-center w-40 h-40 rounded-full bg-transparent text-medium-gray hover:bg-very-light-gray hover:text-charcoal active:scale-95 transition-all duration-150 ml-16"
             aria-label="設定モーダルを閉じる"
           >
             <svg className="w-20 h-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
