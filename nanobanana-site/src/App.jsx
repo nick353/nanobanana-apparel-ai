@@ -248,10 +248,19 @@ const App = () => {
   const [duration, setDuration] = useState(null);
   const [source, setSource] = useState(null);
   const [resultHistory, setResultHistory] = useState([]);
+  const [assets, setAssets] = useState([]);
   const [globalLoading, setGlobalLoading] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [locale, setLocale] = useState(DEFAULT_LOCALE);
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const last = localStorage.getItem('nb_lastProjectId');
+      if (last) {
+        return SAMPLE_PROJECTS.find((p) => p.id === last) || null;
+      }
+    }
+    return null;
+  });
   const [baseUrl, setBaseUrl] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem(storageKey) || WEBHOOKS.BASE_URL;
@@ -271,7 +280,22 @@ const App = () => {
     setDuration(null);
     setSource(null);
     setResultHistory([]);
+    setAssets([]);
   }, [selectedFunction, selectedProject]);
+
+  useEffect(() => {
+    if (selectedProject && typeof window !== 'undefined') {
+      localStorage.setItem('nb_lastProjectId', selectedProject.id);
+    }
+  }, [selectedProject]);
+
+  const handleSelectProject = (project) => {
+    setSelectedProject(project);
+    setSelectedFunction(FUNCTION_DEFINITIONS[0].id);
+    setResult(null);
+    setResultHistory([]);
+    setAssets([]);
+  };
 
 
   const handleResult = ({ result: nextResult, error: nextError, duration: nextDuration, source: nextSource }) => {
@@ -279,6 +303,23 @@ const App = () => {
     setError(nextError);
     setDuration(nextDuration);
     setSource(nextSource);
+    const extractThumbs = () => {
+      const candidates = [
+        nextResult?.images,
+        nextResult?.image,
+        nextResult?.data?.images,
+        nextResult?.data?.image,
+      ].flat ? [nextResult?.images, nextResult?.image, nextResult?.data?.images, nextResult?.data?.image].flat() : [];
+      return candidates
+        .filter(Boolean)
+        .flatMap((item) => {
+          if (typeof item === 'string') return [item];
+          if (Array.isArray(item)) return item.filter(Boolean);
+          return [];
+        })
+        .map((val) => ({ id: createHistoryId(), thumb: val }));
+    };
+
     const entry = {
       id: createHistoryId(),
       timestamp: new Date().toISOString(),
@@ -288,6 +329,10 @@ const App = () => {
       source: nextSource,
     };
     setResultHistory((prev) => [entry, ...prev].slice(0, 8));
+    const newThumbs = extractThumbs();
+    if (newThumbs.length) {
+      setAssets((prev) => [ ...newThumbs, ...prev ].slice(0, 12));
+    }
   };
 
   const currentDefinition = useMemo(
@@ -315,7 +360,7 @@ const App = () => {
         />
 
         {!selectedProject ? (
-          <ProjectsGallery projects={SAMPLE_PROJECTS} onSelect={setSelectedProject} />
+          <ProjectsGallery projects={SAMPLE_PROJECTS} onSelect={handleSelectProject} />
         ) : (
           <div className="space-y-20">
             <div className="sticky top-24 z-20 glass-panel p-16 md:p-20 shadow-level-2 flex flex-wrap items-center justify-between gap-12">
@@ -378,7 +423,11 @@ const App = () => {
                   isLoading={globalLoading}
                   source={source}
                   history={resultHistory}
-                  onClearHistory={() => setResultHistory([])}
+                  onClearHistory={() => {
+                    setResultHistory([]);
+                    setAssets([]);
+                  }}
+                  assets={assets}
                   variant="inline"
                 />
               </div>
