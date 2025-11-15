@@ -13,6 +13,7 @@ import DesignInstruction from './components/DesignInstruction';
 import BackgroundSelection from './components/BackgroundSelection';
 import AIModelSelection from './components/AIModelSelection';
 import WorkflowGuidePanel from './components/WorkflowGuidePanel';
+import ProjectsGallery from './components/ProjectsGallery';
 import { WEBHOOKS } from './config/webhooks';
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from './utils/i18n';
 
@@ -234,6 +235,12 @@ const createHistoryId = () => {
   return `history-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
 
+const SAMPLE_PROJECTS = [
+  { id: 'p1', title: '2026 SS Tシャツコレクション', summary: '春夏向けコレクションの方向性検証', updatedAt: '2025/01/10', emoji: '👕' },
+  { id: 'p2', title: 'Premium Outer 撮影プラン', summary: 'スタジオ/ロケの背景比較用プリセット', updatedAt: '2025/01/08', emoji: '🧥' },
+  { id: 'p3', title: 'ブランドカラー統一検証', summary: 'ブランドパレットでの色替えテスト', updatedAt: '2025/01/05', emoji: '🎨' },
+];
+
 const App = () => {
   const [selectedFunction, setSelectedFunction] = useState(FUNCTION_DEFINITIONS[0].id);
   const [result, setResult] = useState(null);
@@ -244,6 +251,7 @@ const App = () => {
   const [globalLoading, setGlobalLoading] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [locale, setLocale] = useState(DEFAULT_LOCALE);
+  const [selectedProject, setSelectedProject] = useState(null);
   const [baseUrl, setBaseUrl] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem(storageKey) || WEBHOOKS.BASE_URL;
@@ -263,7 +271,7 @@ const App = () => {
     setDuration(null);
     setSource(null);
     setResultHistory([]);
-  }, [selectedFunction]);
+  }, [selectedFunction, selectedProject]);
 
   const handleResult = ({ result: nextResult, error: nextError, duration: nextDuration, source: nextSource }) => {
     setResult(nextResult);
@@ -304,49 +312,76 @@ const App = () => {
           supportedLocales={SUPPORTED_LOCALES}
         />
 
-        <div className="grid gap-24 lg:grid-cols-[minmax(320px,1fr)_1.8fr] lg:gap-32">
-          <div className="lg:self-start">
-            <FunctionSelector
-              functions={FUNCTION_DEFINITIONS}
-              selectedFunction={selectedFunction}
-              onSelect={setSelectedFunction}
-              locale={locale}
-            />
-          </div>
-
-          <div className="space-y-20 lg:space-y-24">
-            <div className="glass-panel p-24 md:p-32 shadow-card">
-              <div className="space-y-16">
-                {CurrentComponent ? (
-                  <CurrentComponent
-                    onResult={handleResult}
-                    baseUrl={baseUrl}
-                    setGlobalLoading={setGlobalLoading}
-                    locale={locale}
-                  />
-                ) : (
-                  <div className="flex items-start gap-12 text-medium-gray">
-                    <span className="text-2xl" role="img" aria-hidden="true">⚠️</span>
-                    <p className="text-sm leading-[22px]">選択したワークフローが見つかりません。</p>
-                  </div>
-                )}
-
-                <WorkflowGuidePanel definition={currentDefinition} locale={locale} />
+        {!selectedProject ? (
+          <ProjectsGallery projects={SAMPLE_PROJECTS} onSelect={setSelectedProject} />
+        ) : (
+          <div className="space-y-20">
+            <div className="flex flex-wrap items-center justify-between gap-12">
+              <div className="flex items-center gap-10 text-sm text-medium-gray">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedProject(null);
+                    setResult(null);
+                    setResultHistory([]);
+                  }}
+                  className="inline-flex items-center gap-6 rounded-10 border border-very-light-gray px-14 py-10 text-sm font-semibold text-charcoal hover:border-muted-teal hover:text-muted-teal transition-colors duration-150"
+                >
+                  ← プロジェクト一覧に戻る
+                </button>
+                <span className="text-xs uppercase tracking-[0.3em] text-medium-gray">Project</span>
+                <span className="text-sm font-semibold text-charcoal">{selectedProject.title}</span>
               </div>
+              <p className="text-xs text-medium-gray">最終更新 {selectedProject.updatedAt}</p>
             </div>
 
-            <ResultDisplay
-              result={result}
-              error={error}
-              duration={duration}
-              isLoading={globalLoading}
-              source={source}
-              history={resultHistory}
-              onClearHistory={() => setResultHistory([])}
-              variant="inline"
-            />
+            <div className="grid gap-16 lg:grid-cols-[minmax(280px,0.9fr)_1.3fr_1fr] lg:gap-24">
+              <div className="lg:self-start">
+                <FunctionSelector
+                  functions={FUNCTION_DEFINITIONS}
+                  selectedFunction={selectedFunction}
+                  onSelect={setSelectedFunction}
+                  locale={locale}
+                />
+              </div>
+
+              <div className="space-y-20">
+                <div className="glass-panel p-24 md:p-32 shadow-card">
+                  <div className="space-y-16">
+                    {CurrentComponent ? (
+                      <CurrentComponent
+                        onResult={handleResult}
+                        baseUrl={baseUrl}
+                        setGlobalLoading={setGlobalLoading}
+                        locale={locale}
+                      />
+                    ) : (
+                      <div className="flex items-start gap-12 text-medium-gray">
+                        <span className="text-2xl" role="img" aria-hidden="true">⚠️</span>
+                        <p className="text-sm leading-[22px]">選択したワークフローが見つかりません。</p>
+                      </div>
+                    )}
+
+                    <WorkflowGuidePanel definition={currentDefinition} locale={locale} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-12">
+                <ResultDisplay
+                  result={result}
+                  error={error}
+                  duration={duration}
+                  isLoading={globalLoading}
+                  source={source}
+                  history={resultHistory}
+                  onClearHistory={() => setResultHistory([])}
+                  variant="inline"
+                />
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <SettingsModal
