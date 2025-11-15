@@ -247,8 +247,26 @@ const App = () => {
   const [error, setError] = useState(null);
   const [duration, setDuration] = useState(null);
   const [source, setSource] = useState(null);
-  const [resultHistory, setResultHistory] = useState([]);
-  const [assets, setAssets] = useState([]);
+  const [historyByProject, setHistoryByProject] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        return JSON.parse(localStorage.getItem('nb_historyByProject')) || {};
+      } catch {
+        return {};
+      }
+    }
+    return {};
+  });
+  const [assetsByProject, setAssetsByProject] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        return JSON.parse(localStorage.getItem('nb_assetsByProject')) || {};
+      } catch {
+        return {};
+      }
+    }
+    return {};
+  });
   const [globalLoading, setGlobalLoading] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [locale, setLocale] = useState(DEFAULT_LOCALE);
@@ -281,8 +299,6 @@ const App = () => {
     setError(null);
     setDuration(null);
     setSource(null);
-    setResultHistory([]);
-    setAssets([]);
   }, [selectedFunction, selectedProject]);
 
   useEffect(() => {
@@ -299,12 +315,22 @@ const App = () => {
     }
   }, [selectedProject]);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('nb_historyByProject', JSON.stringify(historyByProject));
+    }
+  }, [historyByProject]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('nb_assetsByProject', JSON.stringify(assetsByProject));
+    }
+  }, [assetsByProject]);
+
   const handleSelectProject = (project) => {
     setSelectedProject(project);
     setSelectedFunction(FUNCTION_DEFINITIONS[0].id);
     setResult(null);
-    setResultHistory([]);
-    setAssets([]);
   };
 
 
@@ -313,13 +339,12 @@ const App = () => {
     setError(nextError);
     setDuration(nextDuration);
     setSource(nextSource);
+    if (!selectedProject) {
+      return;
+    }
+    const projectId = selectedProject.id;
     const extractThumbs = () => {
-      const candidates = [
-        nextResult?.images,
-        nextResult?.image,
-        nextResult?.data?.images,
-        nextResult?.data?.image,
-      ];
+      const candidates = [nextResult?.images, nextResult?.image, nextResult?.data?.images, nextResult?.data?.image];
       return candidates
         .flatMap((item) => {
           if (!item) return [];
@@ -338,10 +363,16 @@ const App = () => {
       duration: nextDuration,
       source: nextSource,
     };
-    setResultHistory((prev) => [entry, ...prev].slice(0, 8));
+    setHistoryByProject((prev) => ({
+      ...prev,
+      [projectId]: [entry, ...(prev[projectId] || [])].slice(0, 8),
+    }));
     const newThumbs = extractThumbs();
     if (newThumbs.length) {
-      setAssets((prev) => [ ...newThumbs, ...prev ].slice(0, 12));
+      setAssetsByProject((prev) => ({
+        ...prev,
+        [projectId]: [...newThumbs, ...(prev[projectId] || [])].slice(0, 12),
+      }));
     }
   };
 
@@ -351,6 +382,14 @@ const App = () => {
   );
   const CurrentComponent = currentDefinition?.component;
   const workspaceHeightStyle = { minHeight: 'calc(100vh - 140px)' };
+  const currentHistory = useMemo(
+    () => (selectedProject ? historyByProject[selectedProject.id] || [] : []),
+    [historyByProject, selectedProject],
+  );
+  const currentAssets = useMemo(
+    () => (selectedProject ? assetsByProject[selectedProject.id] || [] : []),
+    [assetsByProject, selectedProject],
+  );
 
   return (
     <div className="min-h-screen bg-warm-cream pb-48 md:pb-96">
@@ -374,15 +413,23 @@ const App = () => {
           <ProjectsGallery projects={SAMPLE_PROJECTS} onSelect={handleSelectProject} />
         ) : (
           <div className="space-y-20">
-            <div className="sticky top-24 z-20 bg-white/90 backdrop-blur-glass border border-white/50 rounded-16 shadow-level-2 p-16 md:p-20 flex flex-wrap items-center justify-between gap-12">
-              <div className="flex items-center gap-10 text-sm text-medium-gray">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedProject(null);
-                    setResult(null);
-                    setSelectedFunction(FUNCTION_DEFINITIONS[0].id);
-                    setResultHistory([]);
+            <div className="sticky top-0 z-30 space-y-16">
+              <Header
+                onOpenSettings={() => setIsSettingsOpen(true)}
+                baseUrl={baseUrl}
+                locale={locale}
+                onLocaleChange={setLocale}
+                supportedLocales={SUPPORTED_LOCALES}
+                compact
+              />
+              <div className="bg-white/90 backdrop-blur-glass border border-white/50 rounded-16 shadow-level-2 p-16 md:p-20 flex flex-wrap items-center justify-between gap-12">
+                <div className="flex items-center gap-10 text-sm text-medium-gray">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedProject(null);
+                      setResult(null);
+                      setSelectedFunction(FUNCTION_DEFINITIONS[0].id);
                   }}
                   className="inline-flex items-center gap-6 rounded-10 border border-very-light-gray px-14 py-10 text-sm font-semibold text-charcoal hover:border-muted-teal hover:text-muted-teal transition-colors duration-150"
                 >
@@ -392,6 +439,7 @@ const App = () => {
                 <span className="text-sm font-semibold text-charcoal">{selectedProject.title}</span>
               </div>
               <p className="text-xs text-medium-gray">最終更新 {selectedProject.updatedAt}</p>
+            </div>
             </div>
 
             <div className="grid gap-16 lg:grid-cols-[minmax(280px,0.9fr)_1.3fr_1fr] lg:gap-24 lg:items-start" style={workspaceHeightStyle}>
@@ -405,25 +453,24 @@ const App = () => {
               </div>
 
               <div className="space-y-20 h-full overflow-y-auto pr-2">
-                <div className="bg-white/90 backdrop-blur-glass border border-white/50 rounded-16 shadow-card p-24 md:p-32">
-                  <div className="space-y-16">
-                    {CurrentComponent ? (
-                      <CurrentComponent
-                        onResult={handleResult}
-                        baseUrl={baseUrl}
-                        setGlobalLoading={setGlobalLoading}
-                        locale={locale}
-                      />
-                    ) : (
-                      <div className="flex items-start gap-12 text-medium-gray">
-                        <span className="text-2xl" role="img" aria-hidden="true">⚠️</span>
-                        <p className="text-sm leading-[22px]">選択したワークフローが見つかりません。</p>
-                      </div>
-                    )}
-
+                {CurrentComponent ? (
+                  <>
+                    <CurrentComponent
+                      onResult={handleResult}
+                      baseUrl={baseUrl}
+                      setGlobalLoading={setGlobalLoading}
+                      locale={locale}
+                    />
                     <WorkflowGuidePanel definition={currentDefinition} locale={locale} />
+                  </>
+                ) : (
+                  <div className="bg-white/90 backdrop-blur-glass border border-white/50 rounded-16 shadow-glass p-24">
+                    <div className="flex items-start gap-12 text-medium-gray">
+                      <span className="text-2xl" role="img" aria-hidden="true">⚠️</span>
+                      <p className="text-sm leading-[22px]">選択したワークフローが見つかりません。</p>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               <div className="space-y-12 h-full overflow-y-auto">
@@ -433,12 +480,13 @@ const App = () => {
                   duration={duration}
                   isLoading={globalLoading}
                   source={source}
-                  history={resultHistory}
+                  history={currentHistory}
                   onClearHistory={() => {
-                    setResultHistory([]);
-                    setAssets([]);
+                    if (!selectedProject) return;
+                    setHistoryByProject((prev) => ({ ...prev, [selectedProject.id]: [] }));
+                    setAssetsByProject((prev) => ({ ...prev, [selectedProject.id]: [] }));
                   }}
-                  assets={assets}
+                  assets={currentAssets}
                   variant="inline"
                 />
               </div>

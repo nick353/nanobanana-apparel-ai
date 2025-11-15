@@ -73,7 +73,7 @@ const DesignIdeaGenerator = ({ onResult, baseUrl, setGlobalLoading, locale = 'ja
   };
 
   return (
-    <section aria-label="デザインアイデア生成フォーム" className="space-y-24">
+    <section aria-label="デザインアイデア生成フォーム" className="bg-white/90 backdrop-blur-glass border border-white/50 rounded-16 shadow-glass p-24 md:p-32 space-y-24">
       <div>
         <div className="flex items-center gap-16 mb-16">
           <div className="flex items-center justify-center w-56 h-56 rounded-16 bg-gradient-to-br from-muted-teal to-dusty-purple text-white text-2xl shadow-level-3">

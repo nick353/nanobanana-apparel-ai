@@ -40,7 +40,7 @@ const Header = ({ onOpenSettings, baseUrl, locale = 'ja', onLocaleChange, suppor
   if (compact) {
     return (
       <header
-        className="sticky top-0 z-30 bg-warm-cream/90 backdrop-blur-md border-b border-very-light-gray"
+        className="bg-warm-cream/90 backdrop-blur-md border-b border-very-light-gray"
         aria-label="NanoBanana サイトヘッダー"
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-16 px-24 py-14 md:px-40">
@@ -130,7 +130,7 @@ const Header = ({ onOpenSettings, baseUrl, locale = 'ja', onLocaleChange, suppor
 
   return (
     <header
-      className="bg-white/80 backdrop-blur-glass border border-white/50 rounded-16 shadow-glass fade-in grid gap-24 p-24 md:p-32 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-32 lg:p-40 sticky top-0 z-20"
+      className="bg-white/80 backdrop-blur-glass border border-white/50 rounded-16 shadow-glass fade-in grid gap-24 p-24 md:p-32 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-32 lg:p-40"
       aria-label="NanoBanana サイトヘッダー"
     >
       <div className="space-y-16">

@@ -1,40 +1,74 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getLocalizedContent } from '../utils/i18n';
 
-const CATEGORY_META = {
-  ideation: {
-    label: 'コンセプト設計',
-    hint: '方向性を決める',
-    guide: 'まずはデザインの方向性をテキストで入力し、生成されたラフを基準に次の工程へ。'
+const CATEGORY_COPY = {
+  ja: {
+    ideation: {
+      label: 'コンセプト設計',
+      hint: '方向性を決める',
+      guide: 'まずはデザインの方向性をテキストで入力し、生成されたラフを基準に次の工程へ。',
+    },
+    modeling: {
+      label: 'モデル & 生成',
+      hint: 'モデルや背景を選択',
+      guide: 'ターゲットモデルや撮影背景をここで決めておくと、後工程の修正が少なくなります。',
+    },
+    editing: {
+      label: '調整・レタッチ',
+      hint: '色や背景を整える',
+      guide: 'カラーや背景の微調整、汚れ消しなど最終仕上げのステップに。',
+    },
+    assets: {
+      label: '素材入力',
+      hint: '素材や背景を差し替え',
+      guide: '支給素材や背景画像を登録しておくと、再生成時にも使い回せます。',
+    },
+    advanced: {
+      label: '高度な指示',
+      hint: '自由テキストや複合操作',
+      guide: 'プロンプト＋画像など複数条件で制御したい場合に活用してください。',
+    },
+    others: {
+      label: 'その他',
+      hint: 'その他のワークフロー',
+      guide: '分類が難しい機能はこちら。詳細はカードを参照してください。',
+    },
   },
-  modeling: {
-    label: 'モデル & 生成',
-    hint: 'モデルや背景を選択',
-    guide: 'ターゲットモデルや撮影背景をここで決めておくと、後工程の修正が少なくなります。'
-  },
-  editing: {
-    label: '調整・レタッチ',
-    hint: '色や背景を整える',
-    guide: 'カラーや背景の微調整、汚れ消しなど最終仕上げのステップに。'
-  },
-  assets: {
-    label: '素材入力',
-    hint: '素材や背景を差し替え',
-    guide: '支給素材や背景画像を登録しておくと、再生成時にも使い回せます。'
-  },
-  advanced: {
-    label: '高度な指示',
-    hint: '自由テキストや複合操作',
-    guide: 'プロンプト＋画像など複数条件で制御したい場合に活用してください。'
-  },
-  others: {
-    label: 'その他',
-    hint: 'その他のワークフロー',
-    guide: '分類が難しい機能はこちら。詳細はカードを参照してください。'
+  en: {
+    ideation: {
+      label: 'Concept Design',
+      hint: 'Decide directions',
+      guide: 'Describe high-level directions and use generated drafts as your starting point.',
+    },
+    modeling: {
+      label: 'Model & Generation',
+      hint: 'Pick models/backgrounds',
+      guide: 'Lock in the model and backdrop here to reduce adjustments later.',
+    },
+    editing: {
+      label: 'Adjust & Retouch',
+      hint: 'Tweak colors/backgrounds',
+      guide: 'Use these workflows for color tweaks, retouching, or final polish.',
+    },
+    assets: {
+      label: 'Asset Input',
+      hint: 'Swap materials/backgrounds',
+      guide: 'Upload brand assets or backgrounds so they can be reused across workflows.',
+    },
+    advanced: {
+      label: 'Advanced Directions',
+      hint: 'Free text & combined actions',
+      guide: 'Send detailed prompts plus reference images when you need granular control.',
+    },
+    others: {
+      label: 'Others',
+      hint: 'Misc workflows',
+      guide: 'Workflows that don’t fit other groups appear here—check the card for details.',
+    },
   },
 };
 
-const categoryOrder = Object.keys(CATEGORY_META);
+const categoryOrder = Object.keys(CATEGORY_COPY.ja);
 
 const copyByLocale = {
   ja: {
@@ -99,6 +133,8 @@ const FunctionSelector = ({ functions, selectedFunction, onSelect, locale }) => 
     return Object.entries(groups).sort((a, b) => orderValue(a[0]) - orderValue(b[0]));
   }, [filteredFunctions]);
 
+  const categoryText = CATEGORY_COPY[locale] || CATEGORY_COPY.ja;
+
   return (
     <aside
       id="workflow-panel"
@@ -155,7 +191,7 @@ const FunctionSelector = ({ functions, selectedFunction, onSelect, locale }) => 
 
       <div className="space-y-16">
         {groupedFunctions.map(([categoryId, items]) => {
-          const sectionMeta = CATEGORY_META[categoryId] || CATEGORY_META.others;
+          const sectionMeta = categoryText[categoryId] || categoryText.others;
           const isExpanded = expandedSections[categoryId];
           const sectionPanelId = `workflow-section-${categoryId}`;
 
