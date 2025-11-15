@@ -39,7 +39,7 @@ const Header = ({ onOpenSettings, baseUrl, locale = 'ja', onLocaleChange, suppor
 
   return (
     <header
-      className="glass-panel fade-in grid gap-24 p-24 md:p-32 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-32 lg:p-40"
+      className="glass-panel fade-in grid gap-24 p-24 md:p-32 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-32 lg:p-40 sticky top-0 z-30"
       aria-label="NanoBanana サイトヘッダー"
     >
       <div className="space-y-16">

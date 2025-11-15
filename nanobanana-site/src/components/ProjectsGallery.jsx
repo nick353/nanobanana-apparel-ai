@@ -17,7 +17,7 @@ const ProjectsGallery = ({ projects, onSelect }) => {
             key={project.id}
             type="button"
             onClick={() => onSelect(project)}
-            className="group rounded-16 border border-very-light-gray bg-soft-white p-16 text-left shadow-level-1 transition-all duration-150 hover:-translate-y-1 hover:shadow-level-3 hover:border-muted-teal/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-muted-teal"
+            className="group rounded-16 border border-very-light-gray bg-soft-white p-16 text-left shadow-level-1 transition-all duration-200 hover:-translate-y-1.5 hover:shadow-level-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-muted-teal"
             aria-label={`${project.title} を開く`}
           >
             <div className="aspect-[4/3] w-full overflow-hidden rounded-12 bg-gradient-to-br from-muted-teal/20 via-soft-gold/10 to-dusty-purple/15 flex items-center justify-center text-4xl">

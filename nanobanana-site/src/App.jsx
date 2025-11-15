@@ -294,6 +294,7 @@ const App = () => {
     [selectedFunction],
   );
   const CurrentComponent = currentDefinition?.component;
+  const workspaceHeightStyle = { height: 'calc(100vh - 220px)' };
 
   return (
     <div className="min-h-screen bg-warm-cream pb-48 md:pb-96">
@@ -316,13 +317,14 @@ const App = () => {
           <ProjectsGallery projects={SAMPLE_PROJECTS} onSelect={setSelectedProject} />
         ) : (
           <div className="space-y-20">
-            <div className="flex flex-wrap items-center justify-between gap-12">
+            <div className="sticky top-24 z-20 glass-panel p-16 md:p-20 shadow-level-2 flex flex-wrap items-center justify-between gap-12">
               <div className="flex items-center gap-10 text-sm text-medium-gray">
                 <button
                   type="button"
                   onClick={() => {
                     setSelectedProject(null);
                     setResult(null);
+                    setSelectedFunction(FUNCTION_DEFINITIONS[0].id);
                     setResultHistory([]);
                   }}
                   className="inline-flex items-center gap-6 rounded-10 border border-very-light-gray px-14 py-10 text-sm font-semibold text-charcoal hover:border-muted-teal hover:text-muted-teal transition-colors duration-150"
@@ -335,8 +337,8 @@ const App = () => {
               <p className="text-xs text-medium-gray">最終更新 {selectedProject.updatedAt}</p>
             </div>
 
-            <div className="grid gap-16 lg:grid-cols-[minmax(280px,0.9fr)_1.3fr_1fr] lg:gap-24">
-              <div className="lg:self-start">
+            <div className="grid gap-16 lg:grid-cols-[minmax(280px,0.9fr)_1.3fr_1fr] lg:gap-24 lg:items-start" style={workspaceHeightStyle}>
+              <div className="lg:self-start h-full overflow-y-auto">
                 <FunctionSelector
                   functions={FUNCTION_DEFINITIONS}
                   selectedFunction={selectedFunction}
@@ -345,7 +347,7 @@ const App = () => {
                 />
               </div>
 
-              <div className="space-y-20">
+              <div className="space-y-20 h-full overflow-y-auto pr-2">
                 <div className="glass-panel p-24 md:p-32 shadow-card">
                   <div className="space-y-16">
                     {CurrentComponent ? (
@@ -367,7 +369,7 @@ const App = () => {
                 </div>
               </div>
 
-              <div className="space-y-12">
+              <div className="space-y-12 h-full overflow-y-auto">
                 <ResultDisplay
                   result={result}
                   error={error}
