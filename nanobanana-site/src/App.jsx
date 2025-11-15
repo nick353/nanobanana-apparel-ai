@@ -260,8 +260,8 @@ const App = () => {
         if (found) return found;
       }
     }
-    // ログイン済み想定で即作業に入れるようデフォルトを最初のプロジェクトに
-    return SAMPLE_PROJECTS[0];
+    // SSR など window 未定義の場合は後段の effect で初期選択する
+    return null;
   });
   const [baseUrl, setBaseUrl] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -284,6 +284,14 @@ const App = () => {
     setResultHistory([]);
     setAssets([]);
   }, [selectedFunction, selectedProject]);
+
+  useEffect(() => {
+    // 初回レンダーでプロジェクト未選択なら先頭を自動選択
+    if (!selectedProject) {
+      const fallback = SAMPLE_PROJECTS[0];
+      setSelectedProject(fallback);
+    }
+  }, [selectedProject]);
 
   useEffect(() => {
     if (selectedProject && typeof window !== 'undefined') {
